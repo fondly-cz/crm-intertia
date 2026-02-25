@@ -40,6 +40,15 @@ A modern CRM application built with Laravel, Vue.js 3, and Inertia.js, using pnp
 | Start Vite dev server                      | `./vendor/bin/sail composer run dev`                         |
 
 
+## Credentials
+
+### Admin Access
+- **Email**: `spoluprace@fondly.cz`
+- **Password**: `admin`
+
+> **Note**: The application is protected by authentication. Only public links for calculations with a valid access token are accessible without logging in.
+
+
 ## Development
 
 ### Quick Start (Both servers)

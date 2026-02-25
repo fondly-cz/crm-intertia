@@ -16,12 +16,16 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Fondly Admin',
+            'email' => 'spoluprace@fondly.cz',
+            'password' => \Illuminate\Support\Facades\Hash::make('admin'),
+            'role' => \App\Enums\UserRole::ADMIN,
         ]);
 
         $this->call([
             CompanySeeder::class,
+            ServiceSeeder::class,
+            CalculationSeeder::class,
         ]);
     }
 }

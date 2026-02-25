@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Calculation;
+use App\Models\Company;
+use App\Models\Service;
 use Inertia\Inertia;
-use Illuminate\Foundation\Application;
 
 class CrmController extends Controller
 {
     public function welcome()
     {
-        return Inertia::render('Welcome', [
-            'laravelVersion' => Application::VERSION,
+        return Inertia::render('Dashboard', [
+            'stats' => [
+                'companies' => Company::count(),
+                'calculations' => Calculation::count(),
+                'services' => Service::count(),
+            ],
         ]);
     }
 }

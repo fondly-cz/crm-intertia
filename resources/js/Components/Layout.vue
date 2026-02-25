@@ -1,62 +1,83 @@
+<script setup>
+import { Link } from '@inertiajs/vue3';
+import Sidebar from '@/Components/Sidebar.vue';
+import Header from '@/Components/Header.vue';
+
+defineProps({
+    hideNav: {
+        type: Boolean,
+        default: false
+    }
+});
+</script>
+
 <template>
-    <div class="min-h-screen bg-gray-50">
-        <!-- Navigation -->
-        <nav class="bg-white shadow-sm border-b">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex">
-                        <div class="flex-shrink-0 flex items-center">
-                            <Link href="/" class="text-xl font-bold text-gray-900">
-                                CRM System
-                            </Link>
-                        </div>
-                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                            <Link 
-                                href="/"
-                                class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
-                            >
-                                Dashboard
-                            </Link>
-                            <Link 
-                                href="/companies"
-                                class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
-                                :class="{ 'border-indigo-500 text-indigo-600': $page.component.startsWith('Companies') }"
-                            >
-                                Companies
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </nav>
+    <div class="min-h-screen bg-gray-50 flex">
+        <!-- Sidebar Navigation (Desktop) -->
+        <Sidebar v-if="!hideNav" />
 
-        <!-- Page Content -->
-        <main class="py-10">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <!-- Flash Messages -->
-                <div v-if="$page.props.flash?.success" class="mb-6">
-                    <div class="bg-green-50 border border-green-200 rounded-md p-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-green-800">
-                                    {{ $page.props.flash.success }}
-                                </p>
+        <!-- Main Content Area -->
+        <div 
+            class="flex-1 flex flex-col min-w-0 transition-all duration-300"
+            :class="[ !hideNav ? 'ml-72' : '' ]"
+        >
+            <!-- Header -->
+            <Header v-if="!hideNav" />
+
+            <!-- Page Content -->
+            <main class="flex-1 p-10">
+                <div class="max-w-[1600px] mx-auto">
+                    <!-- Flash Messages -->
+                    <Transition
+                        enter-active-class="transform transition ease-out duration-300"
+                        enter-from-class="translate-y-2 opacity-0"
+                        enter-to-class="translate-y-0 opacity-100"
+                        leave-active-class="transition ease-in duration-200"
+                        leave-from-class="opacity-100"
+                        leave-to-class="opacity-0"
+                    >
+                        <div v-if="$page.props.flash?.success" class="mb-10">
+                            <div class="bg-green-50 border border-green-100 rounded-[2rem] p-6 shadow-sm flex items-center gap-4">
+                                <div class="h-10 w-10 bg-green-500 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm shadow-green-200">
+                                    <svg class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-black text-gray-900 font-heading">Akce byla úspěšná</p>
+                                    <p class="text-xs font-bold text-green-600 mt-0.5 tracking-wide">{{ $page.props.flash.success }}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </Transition>
 
-                <slot />
-            </div>
-        </main>
+                    <slot />
+                </div>
+            </main>
+
+            <!-- Footer (Optional) -->
+            <footer v-if="!hideNav" class="px-10 py-8 border-t border-gray-100 bg-white/50 text-center">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                    &copy; {{ new Date().getFullYear() }} MojiMili &bull; Všechna práva vyhrazena
+                </p>
+            </footer>
+        </div>
     </div>
 </template>
 
-<script setup>
-import { Link } from '@inertiajs/vue3'
-</script>
+<style>
+/* Custom scrolls for sidebar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #e5e5e5;
+}
+</style>

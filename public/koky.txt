@@ -1,0 +1,46 @@
+Esoul\Ares\Model\Subject Object
+(
+    [in] => 88518426
+    [tradeName] => Martin Kokeš
+    [lawForm] => 101
+    [financeOffice] => 34
+    [creationDate] => DateTime Object
+        (
+            [date] => 2012-01-25 00:00:00.000000
+            [timezone_type] => 3
+            [timezone] => UTC
+        )
+
+    [updateDate] => DateTime Object
+        (
+            [date] => 2023-11-23 00:00:00.000000
+            [timezone_type] => 3
+            [timezone] => UTC
+        )
+
+    [addresses] => Array
+        (
+            [0] => Esoul\Ares\Model\Address Object
+                (
+                    [stateCode] => CZ
+                    [stateName] => Česká republika
+                    [regionCode] => 3204
+                    [regionName] => Kolín
+                    [districtCode] => 27
+                    [districtName] => Středočeský kraj
+                    [municipalityCode] => 533165
+                    [municipalityName] => Kolín
+                    [streetCode] => 228991
+                    [streetName] => Školní
+                    [buildingNumber] => 638
+                    [orientationNumber] => 
+                    [municipalityPartCode] => 147397
+                    [municipalityPartName] => Sendražice
+                    [addressPlaceCode] => 85666980
+                    [zipCode] => 28002
+                    [addressText] => Školní 638, Sendražice, 28002 Kolín
+                )
+
+        )
+
+)

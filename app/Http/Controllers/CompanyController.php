@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use Esoul\Ares\Ares;
+use Exception;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 
 class CompanyController extends Controller
 {
@@ -17,8 +19,8 @@ class CompanyController extends Controller
         $companies = Company::query()
             ->when(request('search'), function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%")
-                      ->orWhere('phone', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
             })
             ->when(request('status'), function ($query, $status) {
                 $query->where('status', $status);
@@ -38,6 +40,18 @@ class CompanyController extends Controller
      */
     public function create()
     {
+        // Create parent class instance.
+        $ares = Ares::create();
+        // Get RZP register instance.
+        $rzp = $ares->getRzp();
+        // Get subject by identification number
+        try {
+            $koky = $rzp->getByIn('88518426');
+        } catch (Exception $e) {
+            return Inertia::render('Companies/Create');
+        }
+        file_put_contents('koky.txt', print_r($koky, true));
+
         return Inertia::render('Companies/Create');
     }
 
@@ -48,6 +62,8 @@ class CompanyController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'ico' => 'nullable|string|max:20',
+            'dic' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:255',
             'website' => 'nullable|url|max:255',
@@ -96,6 +112,8 @@ class CompanyController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'ico' => 'nullable|string|max:20',
+            'dic' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:255',
             'website' => 'nullable|url|max:255',
@@ -126,5 +144,17 @@ class CompanyController extends Controller
 
         return redirect()->route('companies.index')
             ->with('success', 'Company deleted successfully.');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:companies,id',
+        ]);
+
+        Company::whereIn('id', $validated['ids'])->delete();
+
+        return back()->with('success', 'Vybrané firmy byly smazány.');
     }
 }

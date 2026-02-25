@@ -1,11 +1,65 @@
-@import 'tailwindcss';
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@import "tailwindcss";
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Fondly.cz Primary Palette */
+    --color-brand-primary-from: #3c4cf3;
+    --color-brand-primary-to: #e032a6;
+    --color-brand-accent: #2572ff;
+    --color-brand-dark: #131423;
+
+    /* Design Tokens */
+    --radius-brand: 2rem;
+    --shadow-brand: 0 10px 30px -5px rgba(60, 76, 243, 0.2), 0 4px 15px -5px rgba(224, 50, 166, 0.2);
+    --shadow-brand-lg: 0 20px 50px -10px rgba(60, 76, 243, 0.15), 0 10px 30px -10px rgba(224, 50, 166, 0.15);
+
+    /* Fonts */
+    --font-heading: "Quicksand", sans-serif;
+    --font-body: "Nunito", sans-serif;
+}
+
+@layer base {
+    html {
+        font-family: var(--font-body);
+        scroll-behavior: smooth;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-heading);
+    }
+}
+
+@utility brand-gradient {
+    background: linear-gradient(135deg, var(--color-brand-primary-from), var(--color-brand-primary-to));
+}
+
+@utility brand-text-gradient {
+    background: linear-gradient(135deg, var(--color-brand-primary-from), var(--color-brand-primary-to));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@utility rounded-brand {
+    border-radius: var(--radius-brand);
+}
+
+@utility shadow-brand {
+    box-shadow: var(--shadow-brand);
+}
+
+@utility shadow-brand-lg {
+    box-shadow: var(--shadow-brand-lg);
+}
+
+/* Base cleanup for Breeze forms */
+input:focus,
+select:focus,
+textarea:focus {
+    --tw-ring-color: var(--color-brand-primary-from);
+    border-color: var(--color-brand-primary-from);
 }
