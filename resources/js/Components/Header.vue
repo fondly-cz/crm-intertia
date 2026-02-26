@@ -1,23 +1,146 @@
 <script setup>
-import { Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { Link, usePage, router } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
+import { debounce } from 'lodash';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+
+const searchQuery = ref('');
+const searchResults = ref({
+    calculations: [],
+    companies: [],
+    services: []
+});
+const isSearching = ref(false);
+const showResults = ref(false);
+
+const performSearch = debounce(async (query) => {
+    if (!query || query.length < 2) {
+        searchResults.value = { calculations: [], companies: [], services: [] };
+        showResults.value = false;
+        return;
+    }
+
+    isSearching.value = true;
+    try {
+        const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        searchResults.value = data;
+        showResults.value = true;
+    } catch (e) {
+        console.error('Search failed', e);
+    } finally {
+        isSearching.value = false;
+    }
+}, 300);
+
+watch(searchQuery, (newVal) => {
+    performSearch(newVal);
+});
+
+const closeSearch = () => {
+    setTimeout(() => {
+        showResults.value = false;
+    }, 200);
+};
+
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat('cs-CZ', { style: 'currency', currency: 'CZK' }).format(value);
+};
 </script>
 
 <template>
     <header class="h-24 flex items-center justify-between px-10 bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
-        <!-- Search bar (Visual only) -->
-        <div class="hidden lg:flex items-center gap-4 bg-gray-50 px-6 py-3 rounded-2xl w-96 border border-gray-50 focus-within:border-brand-primary-from focus-within:bg-white transition-all shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input 
-                type="text" 
-                placeholder="Hledat..." 
-                class="bg-transparent border-none focus:ring-0 text-sm font-semibold text-gray-600 placeholder:text-gray-300 p-0 w-full"
-            />
+        <!-- Search bar -->
+        <div class="hidden lg:flex relative w-96 z-50">
+            <div class="flex items-center gap-4 bg-gray-50 px-6 py-3 rounded-2xl w-full border border-gray-50 focus-within:border-brand-primary-from focus-within:bg-white transition-all shadow-sm">
+                <svg v-if="!isSearching" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <div v-else class="h-5 w-5 border-2 border-brand-primary-from border-t-transparent rounded-full animate-spin"></div>
+                <input 
+                    v-model="searchQuery"
+                    @focus="searchQuery.length >= 2 ? showResults = true : null"
+                    @blur="closeSearch"
+                    type="text" 
+                    placeholder="Hledat klienty, kalkulace, služby..." 
+                    class="bg-transparent border-none focus:ring-0 text-sm font-semibold text-gray-600 placeholder:text-gray-300 p-0 w-full"
+                />
+            </div>
+            
+            <!-- Dropdown results -->
+            <div 
+                v-if="showResults && (searchResults.calculations.length > 0 || searchResults.companies.length > 0 || searchResults.services.length > 0)" 
+                class="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden max-h-[80vh] overflow-y-auto"
+            >
+                <!-- Companies -->
+                <div v-if="searchResults.companies.length > 0" class="p-4 border-b border-gray-50">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 px-2">Firmy</div>
+                    <div class="space-y-1">
+                        <Link 
+                            v-for="company in searchResults.companies" 
+                            :key="company.id" 
+                            :href="`/companies/${company.id}`"
+                            class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors group"
+                        >
+                            <div class="h-8 w-8 bg-brand-primary-from/10 text-brand-primary-from rounded-lg flex items-center justify-center font-bold text-sm">
+                                {{ company.name.charAt(0) }}
+                            </div>
+                            <div class="overflow-hidden">
+                                <div class="text-sm font-bold text-gray-900 truncate">{{ company.name }}</div>
+                                <div class="text-xs text-gray-400 truncate">{{ company.email }}</div>
+                            </div>
+                        </Link>
+                    </div>
+                </div>
+
+                <!-- Calculations -->
+                <div v-if="searchResults.calculations.length > 0" class="p-4 border-b border-gray-50">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 px-2">Kalkulace</div>
+                    <div class="space-y-1">
+                        <Link 
+                            v-for="calc in searchResults.calculations" 
+                            :key="calc.id" 
+                            :href="`/calculations/${calc.id}`"
+                            class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl transition-colors group"
+                        >
+                            <div class="overflow-hidden">
+                                <div class="text-sm font-bold text-gray-900 truncate">{{ calc.customer_name }}</div>
+                                <div class="text-xs text-gray-400 truncate">{{ calc.customer_company }}</div>
+                            </div>
+                            <div class="text-xs font-black brand-text-gradient ml-2">
+                                {{ formatCurrency(calc.total_price) }}
+                            </div>
+                        </Link>
+                    </div>
+                </div>
+
+                <!-- Services -->
+                <div v-if="searchResults.services.length > 0" class="p-4">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 px-2">Služby</div>
+                    <div class="space-y-1">
+                        <Link 
+                            v-for="service in searchResults.services" 
+                            :key="service.id" 
+                            href="/services"
+                            class="flex flex-col p-2 hover:bg-gray-50 rounded-xl transition-colors group"
+                        >
+                            <div class="flex items-center justify-between w-full">
+                                <div class="text-sm font-bold text-gray-900 truncate">{{ service.name }}</div>
+                                <div class="text-xs font-bold text-gray-500">{{ formatCurrency(service.price) }}</div>
+                            </div>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+            
+            <div 
+                v-else-if="showResults && searchQuery.length >= 2" 
+                class="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center"
+            >
+                <div class="text-gray-400 text-sm font-bold">Nebyly nalezeny žádné výsledky</div>
+            </div>
         </div>
 
         <!-- Right section -->
