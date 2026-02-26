@@ -12,7 +12,7 @@ class CompanySearchController extends Controller
     {
         $search = $request->input('q');
 
-        if (!$search) {
+        if (! $search) {
             return response()->json([]);
         }
 

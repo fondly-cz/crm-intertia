@@ -11,6 +11,9 @@ Route::middleware(['auth', 'hasRole'])->group(function () {
     Route::get('/', [CrmController::class, 'welcome'])->name('dashboard');
     Route::resource('companies', CompanyController::class);
     Route::post('companies/bulk-delete', [CompanyController::class, 'bulkDelete'])->name('companies.bulk-delete');
+
+    Route::post('companies/{company}/employees', [\App\Http\Controllers\CompanyEmployeeController::class, 'store'])->name('companies.employees.store');
+    Route::delete('companies/{company}/employees/{employee}', [\App\Http\Controllers\CompanyEmployeeController::class, 'destroy'])->name('companies.employees.destroy');
     Route::get('/api/ares', [\App\Http\Controllers\AresController::class, 'getCompanyData'])->name('ares.lookup');
     Route::get('/api/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search');
     Route::get('/api/companies/search', \App\Http\Controllers\Api\CompanySearchController::class)->name('api.companies.search');
@@ -34,4 +37,4 @@ Route::middleware(['auth', 'hasRole'])->group(function () {
 Route::get('/c/{token}', [CalculationController::class, 'showPublic'])->name('calculations.public');
 Route::post('/c/{token}/confirm', [CalculationController::class, 'acceptPublic'])->name('calculations.confirm');
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

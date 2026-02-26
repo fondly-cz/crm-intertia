@@ -48,4 +48,9 @@ class Company extends Model
     {
         return $query->where('status', 'prospect');
     }
+
+    public function employees()
+    {
+        return $this->hasMany(CompanyEmployee::class);
+    }
 }
