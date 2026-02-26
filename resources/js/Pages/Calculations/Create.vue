@@ -66,7 +66,7 @@
                                         <td class="py-4 pl-3 pr-6 text-center">
                                             <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-50 text-brand-primary-from group-hover:bg-brand-primary-from group-hover:text-white transition-all shadow-sm">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 font-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                                 </svg>
                                             </div>
                                         </td>
