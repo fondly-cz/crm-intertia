@@ -194,6 +194,52 @@
                         
                         <h2 class="text-lg font-black text-gray-900 mb-8 border-b-2 border-gray-50 pb-6 font-heading uppercase tracking-widest relative z-10">Detaily poptávky</h2>
                         <div class="space-y-6 relative z-10">
+                            <!-- autocomplete block -->
+                            <div class="relative">
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Vybrat firmu z databáze (nebo vyplnit ručně)</label>
+                                <input 
+                                    v-model="companySearchQuery" 
+                                    type="text" 
+                                    class="w-full px-5 py-3.5 bg-gray-50 border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all pr-10" 
+                                    placeholder="Hledat podle názvu nebo IČO..."
+                                    @focus="showCompanyResults = companySearchQuery.length > 1"
+                                    @input="onSearchInput"
+                                >
+                                <div v-if="isSearching" class="absolute right-3 top-10 flex items-center pr-1 h-full">
+                                    <svg class="animate-spin h-5 w-5 text-brand-primary-from" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </div>
+                                <div 
+                                    v-if="showCompanyResults && companySearchResults.length > 0" 
+                                    class="absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+                                >
+                                    <ul class="max-h-60 overflow-y-auto">
+                                        <li 
+                                            v-for="company in companySearchResults" 
+                                            :key="company.id"
+                                            @click="selectCompany(company)"
+                                            class="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0"
+                                        >
+                                            <div class="font-bold text-gray-900 text-sm">{{ company.name }}</div>
+                                            <div class="text-xs text-gray-500 mt-0.5">
+                                                <span v-if="company.ico">IČO: {{ company.ico }}</span>
+                                                <span v-if="company.ico && company.email"> • </span>
+                                                <span v-if="company.email">{{ company.email }}</span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div 
+                                    v-if="showCompanyResults && companySearchQuery.length > 1 && companySearchResults.length === 0 && !isSearching" 
+                                    class="absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden px-4 py-3 text-sm text-gray-500 text-center"
+                                >
+                                    Žádná firma nebyla nalezena
+                                </div>
+                            </div>
+                            <!-- end autocomplete block -->
+
                             <div>
                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Jméno klienta</label>
                                 <input v-model="form.customer_name" type="text" required class="w-full px-5 py-3.5 bg-gray-50 border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all" placeholder="Napoleon Bonaparte">
@@ -211,8 +257,9 @@
                             </div>
                             <div>
                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Firma (nepovinné)</label>
-                                <input v-model="form.customer_company" type="text" class="w-full px-5 py-3.5 bg-gray-50 border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all">
+                                <input v-model="form.customer_company" type="text" class="w-full px-5 py-3.5 bg-gray-50 border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all" placeholder="Název firmy">
                             </div>
+
                             <div>
                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Interní poznámka</label>
                                 <textarea v-model="form.note" rows="3" class="w-full px-5 py-3.5 bg-gray-50 border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all" placeholder="Např. klient spěchá na logo..."></textarea>
@@ -235,10 +282,11 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useForm, usePage } from '@inertiajs/vue3'
 import Layout from '../../Components/Layout.vue'
 import CalculationItemNode from '../../Components/CalculationItemNode.vue'
+import debounce from 'lodash/debounce'
 
 const props = defineProps({
     services: Array
@@ -269,6 +317,63 @@ watch(searchQuery, () => {
 })
 watch(perPage, () => {
     currentPage.value = 1
+})
+
+const companySearchQuery = ref('')
+const companySearchResults = ref([])
+const isSearching = ref(false)
+const showCompanyResults = ref(false)
+
+const performCompanySearch = debounce(async () => {
+    if (companySearchQuery.value.length < 2) {
+        showCompanyResults.value = false
+        companySearchResults.value = []
+        isSearching.value = false
+        return
+    }
+
+    isSearching.value = true
+    try {
+        const response = await fetch(`/api/companies/search?q=${encodeURIComponent(companySearchQuery.value)}`)
+        const data = await response.json()
+        companySearchResults.value = data
+        showCompanyResults.value = true
+    } catch (error) {
+        console.error('Error fetching companies:', error)
+    } finally {
+        isSearching.value = false
+    }
+}, 300)
+
+const onSearchInput = () => {
+    isSearching.value = true
+    showCompanyResults.value = true
+    performCompanySearch()
+}
+
+const selectCompany = (company) => {
+    form.customer_name = company.name
+    form.customer_company = company.name
+    if (company.email) form.customer_email = company.email
+    if (company.phone) form.customer_phone = company.phone
+    
+    companySearchQuery.value = company.name
+    showCompanyResults.value = false
+}
+
+// Close autocomplete when clicking outside
+const handleClickOutside = (e) => {
+    if (!e.target.closest('.relative')) {
+        showCompanyResults.value = false
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
 })
 
 const totalPages = computed(() => {
