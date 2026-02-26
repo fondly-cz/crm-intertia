@@ -187,6 +187,22 @@
                                             {{ formatCurrency(totalPrice * (form.show_vat ? 1.21 : 1)) }}
                                         </span>
                                     </div>
+
+                                    <!-- Price Breakdown -->
+                                    <div v-if="form.services.length > 0" class="px-6 py-2 space-y-2">
+                                        <div v-if="totalsByPeriod.once > 0" class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                            <span>Jednorázově</span>
+                                            <span class="text-gray-900">{{ formatCurrency(totalsByPeriod.once * (form.show_vat ? 1.21 : 1)) }}</span>
+                                        </div>
+                                        <div v-if="totalsByPeriod.monthly > 0" class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                            <span>Měsíčně</span>
+                                            <span class="text-gray-900">{{ formatCurrency(totalsByPeriod.monthly * (form.show_vat ? 1.21 : 1)) }}</span>
+                                        </div>
+                                        <div v-if="totalsByPeriod.yearly > 0" class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                            <span>Ročně</span>
+                                            <span class="text-gray-900">{{ formatCurrency(totalsByPeriod.yearly * (form.show_vat ? 1.21 : 1)) }}</span>
+                                        </div>
+                                    </div>
                                     
                                     <div class="flex items-center gap-4 px-6">
                                         <div class="grow h-0.5 bg-gray-50"></div>
@@ -488,6 +504,16 @@ const totalPrice = computed(() => {
 
 const totalDays = computed(() => {
     return form.services.reduce((total, s) => total + s.days, 0)
+})
+
+const totalsByPeriod = computed(() => {
+    const totals = { once: 0, monthly: 0, yearly: 0 }
+    form.services.forEach(s => {
+        if (totals[s.payment_period] !== undefined) {
+            totals[s.payment_period] += s.price
+        }
+    })
+    return totals
 })
 
 const submit = () => {

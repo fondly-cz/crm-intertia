@@ -90,6 +90,22 @@
                                     {{ formatCurrency((is_public ? currentTotalPrice : calculation.total_price) * (calculation.show_vat ? 1.21 : 1)) }}
                                 </span>
                             </div>
+
+                            <!-- Price Breakdown -->
+                            <div class="px-4 py-1 space-y-2">
+                                <div v-if="currentTotalsByPeriod.once > 0" class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                    <span>Jednorázově</span>
+                                    <span class="text-gray-900">{{ formatCurrency(currentTotalsByPeriod.once * (calculation.show_vat ? 1.21 : 1)) }}</span>
+                                </div>
+                                <div v-if="currentTotalsByPeriod.monthly > 0" class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                    <span>Měsíčně</span>
+                                    <span class="text-gray-900">{{ formatCurrency(currentTotalsByPeriod.monthly * (calculation.show_vat ? 1.21 : 1)) }}</span>
+                                </div>
+                                <div v-if="currentTotalsByPeriod.yearly > 0" class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                    <span>Ročně</span>
+                                    <span class="text-gray-900">{{ formatCurrency(currentTotalsByPeriod.yearly * (calculation.show_vat ? 1.21 : 1)) }}</span>
+                                </div>
+                            </div>
                             
                             <button 
                                 v-if="is_public && calculation.status !== 'confirmed'"
@@ -239,6 +255,20 @@ const currentTotalDays = computed(() => {
     return props.calculation.items
         .filter(item => isSelected(item.id))
         .reduce((sum, item) => sum + parseInt(item.days), 0)
+})
+
+const currentTotalsByPeriod = computed(() => {
+    const items = props.is_public && props.calculation.status !== 'confirmed'
+        ? props.calculation.items.filter(item => isSelected(item.id))
+        : props.calculation.items.filter(item => item.is_accepted)
+
+    const totals = { once: 0, monthly: 0, yearly: 0 }
+    items.forEach(item => {
+        if (totals[item.payment_period] !== undefined) {
+            totals[item.payment_period] += parseFloat(item.price)
+        }
+    })
+    return totals
 })
 
 const confirmSelection = () => {
