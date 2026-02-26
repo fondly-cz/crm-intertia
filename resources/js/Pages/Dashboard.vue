@@ -97,7 +97,15 @@ defineProps({
                     <span class="font-bold">Nastavení služeb</span>
                 </Link>
 
-                <div class="flex items-center gap-3 p-4 rounded-2xl bg-gray-50 opacity-50 cursor-not-allowed">
+                <Link v-if="$page.props.auth.user?.role === 'admin'" href="/users" class="flex items-center gap-3 p-4 rounded-2xl bg-gray-50 hover:bg-brand-primary-from hover:text-white transition-all group">
+                    <div class="h-10 w-10 brand-gradient rounded-xl flex items-center justify-center text-white shadow-sm group-hover:bg-white group-hover:text-brand-primary-from group-hover:from-white group-hover:to-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                    <span class="font-bold">Správa uživatelů</span>
+                </Link>
+                <div v-else class="flex items-center gap-3 p-4 rounded-2xl bg-gray-50 opacity-50 cursor-not-allowed">
                     <div class="h-10 w-10 bg-gray-200 rounded-xl flex items-center justify-center text-gray-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />

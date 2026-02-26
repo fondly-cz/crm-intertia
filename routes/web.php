@@ -21,10 +21,11 @@ Route::middleware(['auth', 'hasRole'])->group(function () {
     Route::resource('calculations', CalculationController::class);
     Route::post('calculations/bulk-delete', [CalculationController::class, 'bulkDelete'])->name('calculations.bulk-delete');
 
-    // Only admins can manage services and users (users management not yet implemented)
+    // Only admins can manage services and users
     Route::post('services/bulk', [ServiceController::class, 'bulkStore'])->name('services.bulk');
     Route::post('services/bulk-delete', [ServiceController::class, 'bulkDelete'])->name('services.bulk-delete');
     Route::resource('services', ServiceController::class)->middleware('role:admin');
+    Route::resource('users', \App\Http\Controllers\UserController::class)->middleware('role:admin');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -37,4 +38,4 @@ Route::middleware(['auth', 'hasRole'])->group(function () {
 Route::get('/c/{token}', [CalculationController::class, 'showPublic'])->name('calculations.public');
 Route::post('/c/{token}/confirm', [CalculationController::class, 'acceptPublic'])->name('calculations.confirm');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
