@@ -6,11 +6,27 @@
                 <p class="mt-4 text-xl opacity-90 font-medium italic">Sestavte projekt na míru z našich služeb</p>
             </div>
 
-            <div class="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start relative">
+                <!-- Toggle Open Button (Visible when closed) -->
+                <div v-if="!isCatalogOpen" class="hidden lg:flex absolute -left-4 top-8 -ml-6 z-20">
+                    <button @click="isCatalogOpen = true" class="h-12 w-12 bg-white rounded-full shadow-brand border border-gray-100 flex items-center justify-center text-brand-primary-from hover:scale-110 transition-all" title="Zobrazit katalog">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 font-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+
                 <!-- Catalog of Services -->
-                <div class="lg:col-span-7">
+                <div v-show="isCatalogOpen" class="lg:col-span-7 transition-all">
                     <div class="mb-8 flex items-center justify-between">
-                        <h2 class="text-2xl font-black text-gray-900 font-heading">Katalog služeb</h2>
+                        <div class="flex items-center gap-4">
+                            <h2 class="text-2xl font-black text-gray-900 font-heading">Katalog služeb</h2>
+                            <button @click="isCatalogOpen = false" class="hidden lg:flex h-8 w-8 bg-gray-50 rounded-full items-center justify-center text-gray-400 hover:text-brand-primary-from hover:bg-brand-primary-from/10 transition-colors hover:scale-110" title="Skrýt katalog">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 stroke-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                        </div>
                         <div class="flex gap-2">
                              <div class="px-4 py-2 bg-gray-50 rounded-xl text-xs font-bold text-gray-400 uppercase tracking-widest border border-gray-100">
                                 {{ services.length }} položek
@@ -107,7 +123,7 @@
                 </div>
 
                 <!-- Structure and Summary -->
-                <div class="mt-16 lg:mt-0 lg:col-span-5 space-y-8">
+                <div class="mt-16 lg:mt-0 space-y-8 transition-all duration-300" :class="isCatalogOpen ? 'lg:col-span-5' : 'lg:col-span-12'">
                     <!-- Added Items (Hierarchical Builder) -->
                     <div class="bg-white rounded-[2.5rem] shadow-brand overflow-hidden border border-gray-50">
                         <div class="bg-gray-900 px-8 py-8 text-white relative overflow-hidden">
@@ -230,6 +246,7 @@ const props = defineProps({
 
 const user = usePage().props.auth.user
 
+const isCatalogOpen = ref(true)
 const searchQuery = ref('')
 const perPage = ref(20)
 const currentPage = ref(1)
