@@ -84,11 +84,40 @@
                         </div>
                         
                         <div class="w-full sm:w-80 space-y-4">
-                            <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                                <span class="text-sm font-bold text-gray-400 uppercase tracking-widest font-heading">Celkem {{ calculation.show_vat ? 's DPH' : '' }}</span>
-                                <span class="text-4xl font-extrabold brand-text-gradient font-heading">
-                                    {{ formatCurrency((is_public ? currentTotalPrice : calculation.total_price) * (calculation.show_vat ? 1.21 : 1)) }}
+                            <div class="flex justify-between items-center bg-gray-50 p-6 rounded-brand border border-gray-100">
+                                <span class="text-sm font-bold text-gray-400 uppercase tracking-widest font-heading">Investice (jednorázově) {{ calculation.show_vat ? 's DPH' : '' }}</span>
+                                <span class="text-4xl font-extrabold brand-text-gradient font-heading tracking-tighter">
+                                    {{ formatCurrency(currentTotalsByPeriod.once * (calculation.show_vat ? 1.21 : 1)) }}
                                 </span>
+                            </div>
+
+                            <!-- Recurring Costs UI (Show) -->
+                            <div v-if="currentTotalsByPeriod.monthly > 0 || currentTotalsByPeriod.yearly > 0" class="p-6 bg-indigo-50/20 rounded-brand border border-indigo-100/50">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest font-heading mb-2">Provozní náklady</span>
+                                        <div class="flex bg-white p-1 rounded-xl shadow-sm border border-indigo-100/50 w-fit">
+                                            <button 
+                                                @click="recurringPeriod = 'monthly'"
+                                                class="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all"
+                                                :class="recurringPeriod === 'monthly' ? 'brand-gradient text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'"
+                                            >Měsíčně</button>
+                                            <button 
+                                                @click="recurringPeriod = 'yearly'"
+                                                class="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all"
+                                                :class="recurringPeriod === 'yearly' ? 'brand-gradient text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'"
+                                            >Ročně</button>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-2xl font-extrabold text-gray-900 font-heading">
+                                            {{ formatCurrency(recurringTotalCombined * (calculation.show_vat ? 1.21 : 1)) }}
+                                        </div>
+                                        <div class="text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                            {{ recurringPeriod === 'monthly' ? '/ měsíc' : '/ rok' }} {{ calculation.show_vat ? 's DPH' : '' }}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Price Breakdown -->
@@ -269,6 +298,16 @@ const currentTotalsByPeriod = computed(() => {
         }
     })
     return totals
+})
+
+const recurringPeriod = ref('monthly')
+
+const recurringTotalCombined = computed(() => {
+    if (recurringPeriod.value === 'monthly') {
+        return currentTotalsByPeriod.value.monthly + (currentTotalsByPeriod.value.yearly / 12)
+    } else {
+        return (currentTotalsByPeriod.value.monthly * 12) + currentTotalsByPeriod.value.yearly
+    }
 })
 
 const confirmSelection = () => {

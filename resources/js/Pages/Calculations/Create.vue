@@ -173,7 +173,7 @@
                                     <div class="flex justify-between items-center bg-brand-primary-from/5 p-6 rounded-3xl border border-brand-primary-from/10">
                                         <div class="flex flex-col">
                                             <span class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] font-heading">
-                                                Celková cena {{ form.show_vat ? 's DPH' : 'bez DPH' }}
+                                                Investice (jednorázově) {{ form.show_vat ? 's DPH' : 'bez DPH' }}
                                             </span>
                                             <label class="mt-2 flex items-center gap-2 cursor-pointer group/vat">
                                                 <div class="relative inline-flex items-center cursor-pointer">
@@ -183,9 +183,38 @@
                                                 <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest group-hover/vat:text-brand-primary-from transition-colors">Zobrazit s DPH</span>
                                             </label>
                                         </div>
-                                        <span class="text-3xl font-black brand-text-gradient font-heading line-height-none">
-                                            {{ formatCurrency(totalPrice * (form.show_vat ? 1.21 : 1)) }}
+                                        <span class="text-4xl font-black brand-text-gradient font-heading line-height-none tracking-tighter">
+                                            {{ formatCurrency(totalsByPeriod.once * (form.show_vat ? 1.21 : 1)) }}
                                         </span>
+                                    </div>
+
+                                    <!-- Recurring Costs UI -->
+                                    <div v-if="totalsByPeriod.monthly > 0 || totalsByPeriod.yearly > 0" class="p-6 bg-gray-50 rounded-3xl border border-gray-100">
+                                        <div class="flex justify-between items-center">
+                                            <div class="flex flex-col">
+                                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest font-heading mb-2">Provozní náklady</span>
+                                                <div class="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100">
+                                                    <button 
+                                                        @click="recurringPeriod = 'monthly'"
+                                                        class="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all"
+                                                        :class="recurringPeriod === 'monthly' ? 'bg-brand-primary-from text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'"
+                                                    >Měsíčně</button>
+                                                    <button 
+                                                        @click="recurringPeriod = 'yearly'"
+                                                        class="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all"
+                                                        :class="recurringPeriod === 'yearly' ? 'bg-brand-primary-from text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'"
+                                                    >Ročně</button>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-2xl font-black text-gray-900 font-heading">
+                                                    {{ formatCurrency(recurringTotal * (form.show_vat ? 1.21 : 1)) }}
+                                                </div>
+                                                <div class="text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                                    {{ recurringPeriod === 'monthly' ? '/ měsíc' : '/ rok' }} {{ form.show_vat ? 's DPH' : '' }}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <!-- Price Breakdown -->
@@ -514,6 +543,16 @@ const totalsByPeriod = computed(() => {
         }
     })
     return totals
+})
+
+const recurringPeriod = ref('monthly')
+
+const recurringTotal = computed(() => {
+    if (recurringPeriod.value === 'monthly') {
+        return totalsByPeriod.value.monthly + (totalsByPeriod.value.yearly / 12)
+    } else {
+        return (totalsByPeriod.value.monthly * 12) + totalsByPeriod.value.yearly
+    }
 })
 
 const submit = () => {
