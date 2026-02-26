@@ -28,7 +28,7 @@
                     </div>
 
                     <div class="bg-white rounded-3xl shadow-sm border border-gray-50 overflow-hidden">
-                        <div class="max-h-[700px] overflow-y-auto">
+                        <div>
                             <table class="w-full text-left border-collapse">
                                 <thead class="bg-gray-50/50 sticky top-0 z-10 backdrop-blur-md border-b border-gray-50">
                                     <tr>
