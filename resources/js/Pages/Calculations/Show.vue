@@ -70,6 +70,7 @@
                             :is-public="is_public"
                             :is-status-confirmed="calculation.status === 'confirmed'"
                             :selected-ids="selectedIds"
+                            :show-vat="calculation.show_vat"
                             @toggle="toggleItem"
                         />
                     </div>
@@ -84,9 +85,9 @@
                         
                         <div class="w-full sm:w-80 space-y-4">
                             <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                                <span class="text-sm font-bold text-gray-400 uppercase tracking-widest font-heading">Celkem</span>
+                                <span class="text-sm font-bold text-gray-400 uppercase tracking-widest font-heading">Celkem {{ calculation.show_vat ? 's DPH' : '' }}</span>
                                 <span class="text-4xl font-extrabold brand-text-gradient font-heading">
-                                    {{ formatCurrency(is_public ? currentTotalPrice : calculation.total_price) }}
+                                    {{ formatCurrency((is_public ? currentTotalPrice : calculation.total_price) * (calculation.show_vat ? 1.21 : 1)) }}
                                 </span>
                             </div>
                             

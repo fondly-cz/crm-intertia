@@ -38,4 +38,4 @@ Route::middleware(['auth', 'hasRole'])->group(function () {
 Route::get('/c/{token}', [CalculationController::class, 'showPublic'])->name('calculations.public');
 Route::post('/c/{token}/confirm', [CalculationController::class, 'acceptPublic'])->name('calculations.confirm');
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

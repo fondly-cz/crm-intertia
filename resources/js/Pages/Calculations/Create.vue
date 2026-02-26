@@ -73,8 +73,8 @@
                                             </div>
                                         </td>
                                         <td class="py-4 px-3 text-right">
-                                            <div class="text-sm font-black brand-text-gradient font-heading">{{ formatCurrency(calculatePrice(service)) }}</div>
-                                            <div class="text-[8px] font-black uppercase tracking-widest text-gray-400 mt-0.5">{{ getPeriodLabel(service.payment_period) }}</div>
+                                            <div class="text-sm font-black brand-text-gradient font-heading">{{ formatCurrency(calculatePrice(service) * (form.show_vat ? 1.21 : 1)) }}</div>
+                                            <div class="text-[8px] font-black uppercase tracking-widest text-gray-400 mt-0.5">{{ getPeriodLabel(service.payment_period) }} {{ form.show_vat ? 's DPH' : '' }}</div>
                                         </td>
                                         <td class="py-4 px-3 text-center">
                                             <div class="text-xs font-black text-gray-700">{{ service.days }} dní</div>
@@ -160,6 +160,7 @@
                                     :all-items="form.services"
                                     :dragged-id="draggedId"
                                     :drop-target-id="dropTargetId"
+                                    :show-vat="form.show_vat"
                                     @drag-start="handleNodeDragStart"
                                     @set-drop-target="dropTargetId = $event"
                                     @clear-drop-target="dropTargetId = null"
@@ -170,8 +171,21 @@
 
                             <div class="mt-10 pt-8 border-t-2 border-gray-100 space-y-4">
                                     <div class="flex justify-between items-center bg-brand-primary-from/5 p-6 rounded-3xl border border-brand-primary-from/10">
-                                        <span class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] font-heading">Celková cena</span>
-                                        <span class="text-3xl font-black brand-text-gradient font-heading line-height-none">{{ formatCurrency(totalPrice) }}</span>
+                                        <div class="flex flex-col">
+                                            <span class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] font-heading">
+                                                Celková cena {{ form.show_vat ? 's DPH' : 'bez DPH' }}
+                                            </span>
+                                            <label class="mt-2 flex items-center gap-2 cursor-pointer group/vat">
+                                                <div class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" v-model="form.show_vat" class="sr-only peer">
+                                                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:inset-s-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-primary-from"></div>
+                                                </div>
+                                                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest group-hover/vat:text-brand-primary-from transition-colors">Zobrazit s DPH</span>
+                                            </label>
+                                        </div>
+                                        <span class="text-3xl font-black brand-text-gradient font-heading line-height-none">
+                                            {{ formatCurrency(totalPrice * (form.show_vat ? 1.21 : 1)) }}
+                                        </span>
                                     </div>
                                     
                                     <div class="flex items-center gap-4 px-6">
@@ -401,6 +415,7 @@ const form = useForm({
     customer_phone: user?.phone || '',
     customer_company: user?.company || '',
     note: '',
+    show_vat: false,
     services: [] // { unique_id, parent_id: null }
 })
 

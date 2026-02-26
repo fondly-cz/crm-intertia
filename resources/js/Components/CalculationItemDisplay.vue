@@ -29,10 +29,10 @@
             </div>
             <div class="text-right shrink-0">
                 <div class="font-extrabold text-gray-900 font-heading" :class="item.parent_id ? 'text-base' : 'text-lg'">
-                    {{ formatCurrency(item.price) }}
+                    {{ formatCurrency(showVat ? item.price * 1.21 : item.price) }}
                 </div>
                 <div class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">
-                    {{ getPeriodLabel(item.payment_period) }}
+                    {{ getPeriodLabel(item.payment_period) }} {{ showVat ? 's DPH' : '' }}
                 </div>
             </div>
         </div>
@@ -47,6 +47,7 @@
                 :is-public="isPublic"
                 :is-status-confirmed="isStatusConfirmed"
                 :selected-ids="selectedIds"
+                :show-vat="showVat"
                 @toggle="$emit('toggle', $event)"
             />
         </template>
@@ -61,7 +62,8 @@ const props = defineProps({
     allItems: Array,
     isPublic: Boolean,
     isStatusConfirmed: Boolean,
-    selectedIds: Array
+    selectedIds: Array,
+    showVat: Boolean
 })
 
 const emit = defineEmits(['toggle'])

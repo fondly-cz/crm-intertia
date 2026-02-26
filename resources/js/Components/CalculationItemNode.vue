@@ -33,8 +33,14 @@
             
             <div class="flex flex-wrap items-center gap-3 mt-2">
                 <div class="relative">
-                    <input v-model.number="item.price" type="number" class="w-24 px-2 py-1 text-xs font-black brand-text-gradient bg-gray-50 border-none rounded-lg focus:ring-1 focus:ring-brand-primary-from transition-all" placeholder="Cena">
-                    <div class="absolute right-2 top-1.5 text-[8px] font-black pointer-events-none opacity-30">Kč</div>
+                    <input 
+                        :value="showVat ? Math.round(item.price * 1.21) : item.price" 
+                        @input="e => item.price = showVat ? Math.round(e.target.value / 1.21) : parseFloat(e.target.value)"
+                        type="number" 
+                        class="w-24 px-2 py-1 text-xs font-black brand-text-gradient bg-gray-50 border-none rounded-lg focus:ring-1 focus:ring-brand-primary-from transition-all" 
+                        placeholder="Cena"
+                    >
+                    <div class="absolute right-2 top-1.5 text-[8px] font-black pointer-events-none opacity-30">Kč {{ showVat ? 's DPH' : '' }}</div>
                 </div>
                 <div class="relative">
                     <input v-model.number="item.days" type="number" class="w-16 px-2 py-1 text-xs font-black text-gray-500 bg-gray-50 border-none rounded-lg focus:ring-1 focus:ring-brand-primary-from transition-all" placeholder="Dny">
@@ -55,6 +61,7 @@
                     :all-items="allItems"
                     :dragged-id="draggedId"
                     :drop-target-id="dropTargetId"
+                    :show-vat="showVat"
                     @drag-start="$emit('drag-start', $event)"
                     @set-drop-target="$emit('set-drop-target', $event)"
                     @clear-drop-target="$emit('clear-drop-target', $event)"
@@ -79,7 +86,8 @@ const props = defineProps({
     item: Object,
     allItems: Array,
     draggedId: String,
-    dropTargetId: String
+    dropTargetId: String,
+    showVat: Boolean
 })
 
 const emit = defineEmits(['drag-start', 'set-drop-target', 'clear-drop-target', 'drop-item', 'remove-item'])

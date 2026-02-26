@@ -9,6 +9,10 @@ class Calculation extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'show_vat' => 'boolean',
+    ];
+
     protected $appends = ['public_url'];
 
     protected static function boot()
