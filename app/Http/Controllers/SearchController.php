@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Calculation;
 use App\Models\Company;
 use App\Models\Service;
+use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
@@ -17,7 +17,7 @@ class SearchController extends Controller
             return response()->json([
                 'calculations' => [],
                 'companies' => [],
-                'services' => []
+                'services' => [],
             ]);
         }
 
@@ -40,7 +40,7 @@ class SearchController extends Controller
         return response()->json([
             'calculations' => $calculations,
             'companies' => $companies,
-            'services' => $services
+            'services' => $services,
         ]);
     }
 }
