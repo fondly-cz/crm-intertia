@@ -528,18 +528,18 @@ const calculatePrice = (service) => {
 }
 
 const totalPrice = computed(() => {
-    return form.services.reduce((total, s) => total + s.price, 0)
+    return form.services.reduce((total, s) => total + (parseFloat(s.price) || 0), 0)
 })
 
 const totalDays = computed(() => {
-    return form.services.reduce((total, s) => total + s.days, 0)
+    return form.services.reduce((total, s) => total + (parseInt(s.days) || 0), 0)
 })
 
 const totalsByPeriod = computed(() => {
     const totals = { once: 0, monthly: 0, yearly: 0 }
     form.services.forEach(s => {
         if (totals[s.payment_period] !== undefined) {
-            totals[s.payment_period] += s.price
+            totals[s.payment_period] += (parseFloat(s.price) || 0)
         }
     })
     return totals

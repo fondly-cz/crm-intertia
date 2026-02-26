@@ -34,9 +34,10 @@
             <div class="flex flex-wrap items-center gap-3 mt-2">
                 <div class="relative">
                     <input 
-                        :value="showVat ? Math.round(item.price * 1.21) : item.price" 
-                        @input="e => item.price = showVat ? Math.round(e.target.value / 1.21) : parseFloat(e.target.value)"
+                        :value="showVat ? Number((item.price * 1.21).toFixed(2)) : item.price" 
+                        @input="e => item.price = showVat ? (parseFloat(e.target.value) || 0) / 1.21 : (parseFloat(e.target.value) || 0)"
                         type="number" 
+                        step="0.01"
                         class="w-24 px-2 py-1 text-xs font-black brand-text-gradient bg-gray-50 border-none rounded-lg focus:ring-1 focus:ring-brand-primary-from transition-all" 
                         placeholder="Cena"
                     >
