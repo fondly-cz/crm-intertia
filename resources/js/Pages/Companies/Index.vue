@@ -204,11 +204,20 @@
         </Transition>
 
             <!-- Pagination -->
-            <div v-if="companies.links.length > 3" class="mt-10 flex items-center justify-between">
-                <div>
+            <div v-if="companies.links.length > 3" class="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
                     <p class="text-sm font-bold text-gray-400">
                         Zobrazeno {{ companies.from }} až {{ companies.to }} z {{ companies.total }} výsledků
                     </p>
+                    <select
+                        v-model="searchForm.per_page"
+                        @change="search"
+                        class="block w-40 px-4 py-2 bg-white border-2 border-gray-100 rounded-xl text-xs font-bold text-gray-600 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all appearance-none cursor-pointer"
+                    >
+                        <option value="20">20 na stránku</option>
+                        <option value="50">50 na stránku</option>
+                        <option value="100">100 na stránku</option>
+                    </select>
                 </div>
                 <div>
                     <nav class="relative z-0 inline-flex gap-2">
@@ -263,6 +272,7 @@ const confirmDelete = reactive({
 const searchForm = reactive({
     search: props.filters.search || '',
     status: props.filters.status || '',
+    per_page: props.filters.per_page || 20,
 })
 
 const search = () => {
@@ -275,6 +285,7 @@ const search = () => {
 const clearFilters = () => {
     searchForm.search = ''
     searchForm.status = ''
+    searchForm.per_page = 20
     search()
 }
 

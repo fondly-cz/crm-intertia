@@ -14,24 +14,26 @@ class CompanyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->input('per_page', 20);
+
         $companies = Company::query()
-            ->when(request('search'), function ($query, $search) {
+            ->when($request->input('search'), function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%");
             })
-            ->when(request('status'), function ($query, $status) {
+            ->when($request->input('status'), function ($query, $status) {
                 $query->where('status', $status);
             })
             ->orderBy('name')
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString();
 
         return Inertia::render('Companies/Index', [
             'companies' => $companies,
-            'filters' => request()->only(['search', 'status']),
+            'filters' => $request->only(['search', 'status', 'per_page']),
         ]);
     }
 

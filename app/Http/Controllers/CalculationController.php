@@ -8,10 +8,26 @@ use Illuminate\Http\Request;
 
 class CalculationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->input('per_page', 20);
+
+        $calculations = Calculation::with('items')
+            ->when($request->input('search'), function ($query, $search) {
+                $query->where('customer_name', 'like', "%{$search}%")
+                    ->orWhere('customer_email', 'like', "%{$search}%")
+                    ->orWhere('customer_company', 'like', "%{$search}%");
+            })
+            ->when($request->input('status'), function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->latest()
+            ->paginate($perPage)
+            ->withQueryString();
+
         return inertia('Calculations/Index', [
-            'calculations' => Calculation::with('items')->latest()->get(),
+            'calculations' => $calculations,
+            'filters' => $request->only(['search', 'status', 'per_page']),
         ]);
     }
 
@@ -32,7 +48,9 @@ class CalculationController extends Controller
             'note' => 'nullable|string',
             'services' => 'required|array',
             'services.*.id' => 'required|exists:services,id',
-            'services.*.parent_index' => 'nullable|integer',
+            'services.*.unique_id' => 'required|string',
+            'services.*.parent_id' => 'nullable|string',
+            'services.*.is_required' => 'boolean',
             'services.*.price' => 'required|numeric|min:0',
             'services.*.days' => 'required|integer|min:0',
             'services.*.payment_period' => 'required|string|in:once,monthly,yearly',
@@ -54,7 +72,7 @@ class CalculationController extends Controller
         $createdItems = [];
 
         // Save items first (flat)
-        foreach ($validated['services'] as $index => $itemData) {
+        foreach ($validated['services'] as $itemData) {
             $service = $services->firstWhere('id', $itemData['id']);
             if (! $service) {
                 continue;
@@ -70,18 +88,19 @@ class CalculationController extends Controller
                 'days' => $itemData['days'],
                 'payment_period' => $itemData['payment_period'],
                 'is_accepted' => false,
+                'is_required' => $itemData['is_required'] ?? false,
             ]);
 
-            $createdItems[$index] = $item;
+            $createdItems[$itemData['unique_id']] = $item;
         }
 
-        // Apply hierarchy based on parent_index
-        foreach ($validated['services'] as $index => $itemData) {
-            if (isset($itemData['parent_index']) && isset($createdItems[$itemData['parent_index']])) {
+        // Apply hierarchy based on parent_id
+        foreach ($validated['services'] as $itemData) {
+            if (! empty($itemData['parent_id']) && isset($createdItems[$itemData['parent_id']])) {
                 /** @var \App\Models\CalculationItem $item */
-                $item = $createdItems[$index];
+                $item = $createdItems[$itemData['unique_id']];
                 /** @var \App\Models\CalculationItem $parentItem */
-                $parentItem = $createdItems[$itemData['parent_index']];
+                $parentItem = $createdItems[$itemData['parent_id']];
                 $item->update(['parent_id' => $parentItem->id]);
             }
         }

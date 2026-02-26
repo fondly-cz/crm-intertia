@@ -10,6 +10,7 @@ class CalculationItem extends Model
 
     protected $casts = [
         'is_accepted' => 'boolean',
+        'is_required' => 'boolean',
         'price' => 'decimal:2',
         'cost' => 'decimal:2',
         'margin' => 'decimal:2',

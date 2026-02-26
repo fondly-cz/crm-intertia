@@ -7,10 +7,28 @@ use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Service::query();
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->input('category'));
+        }
+
+        $perPage = $request->input('per_page', 20);
+        $paginator = $query->paginate($perPage)->withQueryString();
+
         return inertia('Services/Index', [
-            'services' => Service::all(),
+            'services' => $paginator,
+            'filters' => $request->only(['search', 'category', 'per_page']),
         ]);
     }
 

@@ -18,43 +18,88 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div 
-                            v-for="service in services" 
-                            :key="service.id"
-                            @click="addService(service)"
-                            class="group relative rounded-3xl border-2 p-6 cursor-pointer transition-all hover:shadow-brand bg-white border-gray-50 hover:border-brand-primary-from/50 overflow-hidden"
+                    <div class="mb-4">
+                        <input 
+                            v-model="searchQuery" 
+                            type="text" 
+                            placeholder="Vyhledat službu..." 
+                            class="w-full px-5 py-3.5 bg-white border-2 border-transparent focus:border-brand-primary-from/30 rounded-3xl text-sm font-semibold text-gray-700 shadow-sm focus:bg-white focus:ring-0 transition-all"
                         >
-                            <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity text-gray-900 group-hover:scale-110 duration-500">
-                                <span class="text-7xl">{{ service.icon }}</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between relative z-10">
-                                <div class="h-14 w-14 bg-gray-50 rounded-2xl flex items-center justify-center text-3xl group-hover:bg-white transition-colors shadow-sm border border-gray-100/50">
-                                    {{ service.icon }}
-                                </div>
-                                <div class="p-2 bg-brand-primary-from/5 text-brand-primary-from rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 font-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-6 relative z-10">
-                                <h3 class="text-lg font-black text-gray-900 font-heading tracking-tight leading-none">{{ service.name }}</h3>
-                                <p class="mt-2 text-xs text-gray-500 font-medium line-clamp-2 leading-relaxed h-8">{{ service.description }}</p>
-                            </div>
+                    </div>
 
-                            <div class="mt-6 pt-4 border-t border-gray-50 flex items-center justify-between relative z-10">
-                                <span class="text-lg font-black brand-text-gradient font-heading">{{ formatCurrency(calculatePrice(service)) }}</span>
-                                <div class="flex flex-col items-end gap-1">
-                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">⏱ {{ service.days }} dní</span>
-                                    <span 
-                                        class="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border"
-                                        :class="getPeriodStyles(service.payment_period)"
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-50 overflow-hidden">
+                        <div class="max-h-[700px] overflow-y-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-gray-50/50 sticky top-0 z-10 backdrop-blur-md border-b border-gray-50">
+                                    <tr>
+                                        <th class="py-4 pl-6 pr-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Služba</th>
+                                        <th class="py-4 px-3 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Cena</th>
+                                        <th class="py-4 px-3 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Čas</th>
+                                        <th class="py-4 pl-3 pr-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Přidat</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50 bg-white">
+                                    <tr 
+                                        v-for="service in paginatedServices" 
+                                        :key="service.id" 
+                                        @click="addService(service)"
+                                        class="hover:bg-brand-primary-from/5 transition-colors cursor-pointer group"
                                     >
-                                        {{ getPeriodLabel(service.payment_period) }}
-                                    </span>
+                                        <td class="py-4 pl-6 pr-3">
+                                            <div class="flex items-center gap-4">
+                                                <div class="h-10 w-10 bg-gray-50 rounded-xl flex items-center justify-center text-xl shadow-sm group-hover:bg-white transition-colors shrink-0">
+                                                    {{ service.icon }}
+                                                </div>
+                                                <div>
+                                                    <div class="text-sm font-black text-gray-900 font-heading">{{ service.name }}</div>
+                                                    <div class="text-xs text-gray-500 line-clamp-1 mt-0.5 max-w-sm">{{ service.description }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-3 text-right">
+                                            <div class="text-sm font-black brand-text-gradient font-heading">{{ formatCurrency(calculatePrice(service)) }}</div>
+                                            <div class="text-[8px] font-black uppercase tracking-widest text-gray-400 mt-0.5">{{ getPeriodLabel(service.payment_period) }}</div>
+                                        </td>
+                                        <td class="py-4 px-3 text-center">
+                                            <div class="text-xs font-black text-gray-700">{{ service.days }} dní</div>
+                                        </td>
+                                        <td class="py-4 pl-3 pr-6 text-center">
+                                            <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-50 text-brand-primary-from group-hover:bg-brand-primary-from group-hover:text-white transition-all shadow-sm">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 font-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+                                                </svg>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="filteredServices.length === 0">
+                                        <td colspan="4" class="py-12 text-center text-gray-400 font-bold text-sm">Nic nenalezeno</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <!-- Pagination Controls -->
+                            <div v-if="filteredServices.length > 0" class="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 bg-gray-50/50 px-6 py-4">
+                                <div class="flex items-center gap-3 text-sm text-gray-500 font-medium">
+                                    Zobrazeno {{ paginationStart }} - {{ paginationEnd }} z {{ filteredServices.length }}
+                                    <select v-model="perPage" class="ml-2 text-xs font-bold bg-white border-gray-200 rounded-lg focus:ring-brand-primary-from focus:border-brand-primary-from">
+                                        <option disabled value="">Zobrazit po...</option>
+                                        <option :value="20">20 na stránku</option>
+                                        <option :value="50">50 na stránku</option>
+                                        <option :value="100">100 na stránku</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center gap-2 mt-4 sm:mt-0">
+                                    <button 
+                                        @click="currentPage--" 
+                                        :disabled="currentPage === 1"
+                                        class="px-3 py-1.5 text-sm font-bold bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                    >Předchozí</button>
+                                    <span class="text-sm font-bold text-gray-700 mx-2">{{ currentPage }} / {{ totalPages }}</span>
+                                    <button 
+                                        @click="currentPage++" 
+                                        :disabled="currentPage >= totalPages"
+                                        class="px-3 py-1.5 text-sm font-bold bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                    >Další</button>
                                 </div>
                             </div>
                         </div>
@@ -90,131 +135,24 @@
                                 <p class="text-gray-400 font-bold font-heading uppercase tracking-widest text-xs">Zatím jste nic nevybrali</p>
                             </div>
 
-                            <div v-else class="space-y-8">
-                                <!-- Grouped Items Display -->
-                                <div v-for="(group, index) in groupedSelectedItems" :key="index" class="space-y-4">
-                                    <!-- Parent Item Card -->
-                                    <div 
-                                        draggable="true"
-                                        @dragstart="handleDragStart($event, group.originalIndex)"
-                                        @dragover.prevent="isValidDropTarget(group.originalIndex) ? dropTargetIndex = group.originalIndex : null"
-                                        @dragleave="dropTargetIndex = null"
-                                        @drop="handleDrop(group.originalIndex)"
-                                        class="relative group bg-white border-2 rounded-3xl p-5 transition-all shadow-sm flex items-center gap-4 cursor-move"
-                                        :class="[
-                                            dropTargetIndex === group.originalIndex ? 'border-brand-primary-from bg-brand-primary-from/5 scale-[1.02]' : 'border-gray-100 hover:border-brand-primary-from/30',
-                                            draggedIndex === group.originalIndex ? 'opacity-30' : ''
-                                        ]"
-                                    >
-                                        <button @click="removeService(group.originalIndex)" class="absolute -right-2 -top-2 h-7 w-7 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110 z-20">
-                                            <span class="text-xs font-bold">×</span>
-                                        </button>
-
-                                        <div class="h-10 w-10 bg-gray-50 rounded-xl flex items-center justify-center text-xl shadow-sm group-hover:bg-white transition-colors">
-                                            {{ group.icon }}
-                                        </div>
-                                        <div class="grow">
-                                            <div class="flex items-center gap-2">
-                                                <h4 class="text-sm font-black text-gray-900 font-heading leading-tight">{{ group.name }}</h4>
-                                                <span 
-                                                    class="px-2 py-0.5 text-[8px] font-black rounded-lg uppercase tracking-widest border"
-                                                    :class="getPeriodStyles(group.payment_period)"
-                                                >
-                                                    {{ getPeriodLabel(group.payment_period) }}
-                                                </span>
-                                                <span v-if="group.children.length > 0" class="px-2 py-0.5 bg-gray-100 text-[8px] font-black rounded-lg text-gray-400 uppercase tracking-widest">{{ group.children.length }} podslužeb</span>
-                                            </div>
-                                            <div class="flex items-center gap-3 mt-2">
-                                                <div class="relative">
-                                                    <input 
-                                                        v-model.number="form.services[group.originalIndex].price" 
-                                                        type="number" 
-                                                        class="w-24 px-2 py-1 text-xs font-black brand-text-gradient bg-gray-50 border-none rounded-lg focus:ring-1 focus:ring-brand-primary-from transition-all"
-                                                        placeholder="Cena"
-                                                    >
-                                                    <div class="absolute right-2 top-1.5 text-[8px] font-black pointer-events-none opacity-30">Kč</div>
-                                                </div>
-                                                <div class="relative">
-                                                    <input 
-                                                         v-model.number="form.services[group.originalIndex].days" 
-                                                         type="number" 
-                                                         class="w-16 px-2 py-1 text-xs font-black text-gray-500 bg-gray-50 border-none rounded-lg focus:ring-1 focus:ring-brand-primary-from transition-all"
-                                                         placeholder="Dny"
-                                                     >
-                                                     <div class="absolute right-1 top-1.5 text-[8px] font-black pointer-events-none opacity-30">dní</div>
-                                                 </div>
-                                             </div>
-                                             <div class="mt-3">
-                                                 <textarea 
-                                                     v-model="form.services[group.originalIndex].description" 
-                                                     rows="2" 
-                                                     class="w-full px-3 py-2 text-xs text-gray-500 bg-gray-50 border-none rounded-xl focus:ring-1 focus:ring-brand-primary-from transition-all resize-none"
-                                                     placeholder="Popis služby (zobrazí se zákazníkovi)..."
-                                                 ></textarea>
-                                             </div>
-                                         </div>
-                                        <div class="p-2 text-gray-200">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 8h16M4 16h16" />
-                                            </svg>
-                                        </div>
-                                    </div>
-
-                                    <!-- Indented Children -->
-                                    <div v-if="group.children.length > 0" class="ml-8 pl-6 border-l-2 border-dashed border-gray-100 space-y-3">
-                                        <div 
-                                            v-for="child in group.children" 
-                                            :key="child.originalIndex"
-                                            draggable="true"
-                                            @dragstart="handleDragStart($event, child.originalIndex)"
-                                            class="relative group bg-gray-50/50 rounded-2xl p-4 flex items-center gap-3 cursor-move hover:bg-white border-2 border-transparent hover:border-brand-primary-from/20 transition-all"
-                                            :class="draggedIndex === child.originalIndex ? 'opacity-30' : ''"
-                                        >
-                                            <button @click="removeService(child.originalIndex)" class="absolute -right-2 -top-2 h-6 w-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:scale-110 z-20">
-                                                <span class="text-xs font-bold">×</span>
-                                            </button>
-                                            <span class="text-lg">{{ child.icon }}</span>
-                                            <div class="grow">
-                                                <div class="flex items-center gap-2">
-                                                    <h5 class="text-xs font-bold text-gray-700 leading-tight">{{ child.name }}</h5>
-                                                    <span 
-                                                        class="px-1.5 py-0.5 text-[7px] font-black rounded-md uppercase tracking-widest border"
-                                                        :class="getPeriodStyles(child.payment_period)"
-                                                    >
-                                                        {{ getPeriodLabel(child.payment_period) }}
-                                                    </span>
-                                                </div>
-                                                <div class="flex items-center gap-2 mt-1">
-                                                    <input 
-                                                        v-model.number="form.services[child.originalIndex].price" 
-                                                        type="number" 
-                                                        class="w-20 px-1.5 py-0.5 text-[10px] font-black brand-text-gradient bg-white border-none rounded-md focus:ring-1 focus:ring-brand-primary-from transition-all"
-                                                    >
-                                                    <input 
-                                                        v-model.number="form.services[child.originalIndex].days" 
-                                                        type="number" 
-                                                        class="w-12 px-1.5 py-0.5 text-[10px] font-black text-gray-400 bg-white border-none rounded-md focus:ring-1 focus:ring-brand-primary-from transition-all"
-                                                    >
-                                                </div>
-                                                <div class="mt-2">
-                                                    <textarea 
-                                                        v-model="form.services[child.originalIndex].description" 
-                                                        rows="1" 
-                                                        class="w-full px-2 py-1 text-[10px] text-gray-500 bg-white border-none rounded-lg focus:ring-1 focus:ring-brand-primary-from transition-all resize-none"
-                                                        placeholder="Popis služby..."
-                                                    ></textarea>
-                                                </div>
-                                            </div>
-                                            <div class="p-1 text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 8h16M4 16h16" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div v-else class="space-y-4">
+                                <!-- N-level Nested Items Display -->
+                                <CalculationItemNode 
+                                    v-for="item in rootItems" 
+                                    :key="item.unique_id"
+                                    :item="item"
+                                    :all-items="form.services"
+                                    :dragged-id="draggedId"
+                                    :drop-target-id="dropTargetId"
+                                    @drag-start="handleNodeDragStart"
+                                    @set-drop-target="dropTargetId = $event"
+                                    @clear-drop-target="dropTargetId = null"
+                                    @drop-item="handleDrop"
+                                    @remove-item="removeService"
+                                />
                                 </div>
 
-                                <div class="mt-10 pt-8 border-t-2 border-gray-100 space-y-4">
+                            <div class="mt-10 pt-8 border-t-2 border-gray-100 space-y-4">
                                     <div class="flex justify-between items-center bg-brand-primary-from/5 p-6 rounded-3xl border border-brand-primary-from/10">
                                         <span class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] font-heading">Celková cena</span>
                                         <span class="text-3xl font-black brand-text-gradient font-heading line-height-none">{{ formatCurrency(totalPrice) }}</span>
@@ -233,7 +171,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
                     <!-- Customer Data -->
                     <div class="bg-white rounded-[2.5rem] shadow-brand p-10 border border-gray-50 relative overflow-hidden">
@@ -282,9 +219,10 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useForm, usePage } from '@inertiajs/vue3'
 import Layout from '../../Components/Layout.vue'
+import CalculationItemNode from '../../Components/CalculationItemNode.vue'
 
 const props = defineProps({
     services: Array
@@ -292,62 +230,91 @@ const props = defineProps({
 
 const user = usePage().props.auth.user
 
+const searchQuery = ref('')
+const perPage = ref(20)
+const currentPage = ref(1)
+
+const filteredServices = computed(() => {
+    let result = props.services
+    if (searchQuery.value) {
+        const q = searchQuery.value.toLowerCase()
+        result = result.filter(s => 
+            s.name.toLowerCase().includes(q) || 
+            (s.description && s.description.toLowerCase().includes(q))
+        )
+    }
+    return result
+})
+
+// Reset array when filters change
+watch(searchQuery, () => {
+    currentPage.value = 1
+})
+watch(perPage, () => {
+    currentPage.value = 1
+})
+
+const totalPages = computed(() => {
+    return Math.ceil(filteredServices.value.length / perPage.value) || 1
+})
+
+const paginatedServices = computed(() => {
+    const start = (currentPage.value - 1) * perPage.value
+    return filteredServices.value.slice(start, start + perPage.value)
+})
+
+const paginationStart = computed(() => {
+    if (filteredServices.value.length === 0) return 0
+    return ((currentPage.value - 1) * perPage.value) + 1
+})
+
+const paginationEnd = computed(() => {
+    const end = currentPage.value * perPage.value
+    return end > filteredServices.value.length ? filteredServices.value.length : end
+})
+
 const form = useForm({
     customer_name: user?.name || '',
     customer_email: user?.email || '',
     customer_phone: user?.phone || '',
     customer_company: user?.company || '',
     note: '',
-    services: [] // { id, parent_index: null }
+    services: [] // { unique_id, parent_id: null }
 })
 
-const draggedIndex = ref(null)
-const dropTargetIndex = ref(null)
+const draggedId = ref(null)
+const dropTargetId = ref(null)
 
-const handleDragStart = (e, index) => {
-    draggedIndex.value = index
-    e.dataTransfer.effectAllowed = 'move'
+const rootItems = computed(() => {
+    return form.services.filter(s => s.parent_id === null)
+})
+
+const handleNodeDragStart = (data) => {
+    draggedId.value = data.id
+    data.event.dataTransfer.effectAllowed = 'move'
 }
 
-const handleDrop = (targetIndex) => {
-    if (draggedIndex.value === null) return
+const handleDrop = (targetId) => {
+    if (!draggedId.value) return
     
-    const dragIdx = draggedIndex.value
+    const dragItem = form.services.find(s => s.unique_id === draggedId.value)
     
-    // targetIndex is null if dropped on root zone
-    if (targetIndex === null) {
-        form.services[dragIdx].parent_index = null
-    } else if (targetIndex !== dragIdx && isValidDropTarget(targetIndex)) {
-        form.services[dragIdx].parent_index = targetIndex
+    if (targetId === null) {
+        dragItem.parent_id = null
+    } else {
+        dragItem.parent_id = targetId
     }
     
-    draggedIndex.value = null
-    dropTargetIndex.value = null
-}
-
-const isValidDropTarget = (targetIndex) => {
-    if (draggedIndex.value === null) return false
-    if (draggedIndex.value === targetIndex) return false
-    
-    // Enforce 1-level limit:
-    // 1. Target must be a root item
-    const targetIsRoot = form.services[targetIndex].parent_index === null
-    if (!targetIsRoot) return false
-    
-    // 2. Dragged item must not have children (to prevent 2nd level)
-    // Or we could allow it but it would detach its children? 
-    // Let's check for children:
-    const hasChildren = form.services.some(s => s.parent_index === draggedIndex.value)
-    if (hasChildren) return false
-    
-    return true
+    draggedId.value = null
+    dropTargetId.value = null
 }
 
 const addService = (service) => {
     form.services.push({ 
+        unique_id: Math.random().toString(36).substr(2, 9),
         id: service.id, 
-        parent_index: null,
-        // Helper metadata for UI
+        parent_id: null,
+        is_required: false,
         name: service.name,
         icon: service.icon,
         description: service.description,
@@ -357,51 +324,22 @@ const addService = (service) => {
     })
 }
 
-const removeService = (index) => {
-    // If we remove an item, we must update all parent_indexes that point to something after this index
-    const removedIndex = index
+const removeService = (idToRemove) => {
+    // Collect all descendants to remove them too
+    const idsToRemove = [idToRemove]
     
-    // First, clear any children of this item (set them to main)
-    form.services.forEach((s, i) => {
-        if (s.parent_index === removedIndex) {
-            s.parent_index = null
-        }
-    })
-
-    // Remove the item
-    form.services.splice(index, 1)
-
-    // Adjust remaining indexes
-    form.services.forEach((s, i) => {
-        if (s.parent_index !== null && s.parent_index > removedIndex) {
-            s.parent_index--
-        }
-    })
+    const collectDescendants = (parentId) => {
+        form.services.forEach(s => {
+            if (s.parent_id === parentId) {
+                idsToRemove.push(s.unique_id)
+                collectDescendants(s.unique_id)
+            }
+        })
+    }
+    collectDescendants(idToRemove)
+    
+    form.services = form.services.filter(s => !idsToRemove.includes(s.unique_id))
 }
-
-
-
-// Logic to group items for hierarchical visual display in the builder
-const groupedSelectedItems = computed(() => {
-    // Items that have no parent
-    const parents = form.services
-        .map((s, i) => ({ ...s, originalIndex: i }))
-        .filter(s => s.parent_index === null)
-    
-    return parents.map(p => {
-        const children = form.services
-            .map((s, i) => ({ ...s, originalIndex: i }))
-            .filter(s => s.parent_index === p.originalIndex)
-        
-        const totalGroupPrice = p.price + children.reduce((sum, c) => sum + c.price, 0)
-        
-        return {
-            ...p,
-            children,
-            totalGroupPrice
-        }
-    })
-})
 
 const calculatePrice = (service) => {
     return parseFloat(service.cost) * (1 + parseFloat(service.margin) / 100)

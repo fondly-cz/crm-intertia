@@ -15,6 +15,51 @@
             </div>
         </div>
 
+
+        <!-- Filters -->
+        <div class="mb-8 bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-50">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+                <div class="md:col-span-6">
+                    <label for="search" class="block text-sm font-bold text-gray-700 ml-1 mb-2 font-heading">Vyhledávání</label>
+                    <div class="relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input
+                            v-model="searchForm.search"
+                            @input="search"
+                            type="text"
+                            id="search"
+                            placeholder="Hledat podle jména, emailu nebo firmy..."
+                            class="block w-full pl-12 pr-4 py-3.5 bg-gray-50 border-gray-50 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-brand-primary-from focus:border-brand-primary-from transition-all"
+                        >
+                    </div>
+                </div>
+                <div class="md:col-span-4">
+                    <label for="status" class="block text-sm font-bold text-gray-700 ml-1 mb-2 font-heading">Stav</label>
+                    <select
+                        v-model="searchForm.status"
+                        @change="search"
+                        id="status"
+                        class="block w-full px-4 py-3.5 bg-gray-50 border-gray-50 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-brand-primary-from focus:border-brand-primary-from transition-all appearance-none cursor-pointer"
+                    >
+                        <option value="">Všechny stavy</option>
+                        <option value="draft">Návrh</option>
+                        <option value="sent">Odesláno</option>
+                        <option value="confirmed">Potvrzeno</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <button
+                        @click="clearFilters"
+                        class="w-full flex items-center justify-center gap-2 px-4 py-3.5 border-2 border-gray-100 rounded-2xl text-sm font-bold text-gray-400 hover:text-brand-primary-from hover:border-brand-primary-from transition-all"
+                    >
+                        Resetovat
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-50 overflow-hidden">
             <div class="overflow-x-auto min-h-[400px]">
                 <table class="w-full border-collapse">
@@ -23,7 +68,7 @@
                             <th class="px-8 py-6 text-left w-10">
                                 <input 
                                     type="checkbox" 
-                                    :checked="selectedIds.length === calculations.length && calculations.length > 0"
+                                    :checked="selectedIds.length === calculations.data.length && calculations.data.length > 0"
                                     @change="toggleSelectAll"
                                     class="rounded border-gray-300 text-brand-primary-from focus:ring-brand-primary-from"
                                 >
@@ -37,7 +82,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
-                        <tr v-for="calc in calculations" :key="calc.id" :class="{'bg-brand-primary-from/5': selectedIds.includes(calc.id)}" class="hover:bg-gray-50/50 transition-colors group">
+                        <tr v-for="calc in calculations.data" :key="calc.id" :class="{'bg-brand-primary-from/5': selectedIds.includes(calc.id)}" class="hover:bg-gray-50/50 transition-colors group">
                             <td class="px-8 py-6">
                                 <input 
                                     type="checkbox" 
@@ -109,6 +154,40 @@
             </div>
         </div>
 
+        <!-- Pagination -->
+        <div v-if="calculations.links && calculations.links.length > 3" class="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <p class="text-sm font-bold text-gray-400">
+                    Zobrazeno {{ calculations.from }} až {{ calculations.to }} z {{ calculations.total }} výsledků
+                </p>
+                <select
+                    v-model="searchForm.per_page"
+                    @change="search"
+                    class="block w-40 px-4 py-2 bg-white border-2 border-gray-100 rounded-xl text-xs font-bold text-gray-600 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all appearance-none cursor-pointer"
+                >
+                    <option value="20">20 na stránku</option>
+                    <option value="50">50 na stránku</option>
+                    <option value="100">100 na stránku</option>
+                </select>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex gap-2">
+                    <Link
+                        v-for="link in calculations.links"
+                        :key="link.label"
+                        :href="link.url"
+                        v-html="link.label"
+                        class="relative inline-flex items-center px-4 py-2 text-sm font-bold rounded-xl transition-all border-2"
+                        :class="{
+                            'brand-gradient text-white border-transparent shadow-sm': link.active,
+                            'bg-white border-gray-100 text-gray-400 hover:border-brand-primary-from hover:text-brand-primary-from': !link.active,
+                            'opacity-30 cursor-not-allowed': !link.url
+                        }"
+                    />
+                </nav>
+            </div>
+        </div>
+
         <!-- Bulk Actions Bar -->
         <Transition
             enter-active-class="ease-out duration-300"
@@ -161,8 +240,33 @@ import Layout from '../../Components/Layout.vue'
 import ConfirmModal from '../../Components/ConfirmModal.vue'
 
 const props = defineProps({
-    calculations: Array
+    calculations: Object,
+    filters: Object,
 })
+
+const searchForm = reactive({
+    search: props.filters?.search || '',
+    status: props.filters?.status || '',
+    per_page: props.filters?.per_page || 20,
+})
+
+const search = () => {
+    router.get('/calculations', {
+        search: searchForm.search,
+        status: searchForm.status,
+        per_page: searchForm.per_page,
+    }, {
+        preserveState: true,
+        replace: true,
+    })
+}
+
+const clearFilters = () => {
+    searchForm.search = ''
+    searchForm.status = ''
+    searchForm.per_page = 20
+    search()
+}
 
 const selectedIds = ref([])
 
@@ -184,7 +288,7 @@ const deleteCalculation = (calc) => {
 
 const toggleSelectAll = (e) => {
     if (e.target.checked) {
-        selectedIds.value = props.calculations.map(c => c.id)
+        selectedIds.value = props.calculations.data.map(c => c.id)
     } else {
         selectedIds.value = []
     }

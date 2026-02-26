@@ -62,73 +62,16 @@
                     </div>
 
                     <div class="space-y-4">
-                        <div v-for="group in groupedItems" :key="group.id" class="border-b border-gray-50 last:border-0 pb-6">
-                            <!-- Parent Item -->
-                            <div 
-                                :class="{ 
-                                    'opacity-50 grayscale bg-gray-50/50': is_public && !isSelected(group.id),
-                                    'cursor-pointer hover:bg-gray-50/80 rounded-2xl p-4 -mx-4 transition-all': is_public && calculation.status !== 'confirmed'
-                                }"
-                                @click="toggleItem(group)"
-                                class="flex items-center gap-6"
-                            >
-                                <div v-if="is_public" class="shrink-0">
-                                    <div 
-                                        class="h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all"
-                                        :class="isSelected(group.id) ? 'brand-gradient border-transparent text-white shadow-sm' : 'border-gray-200 bg-white'"
-                                    >
-                                        <span v-if="isSelected(group.id)" class="text-[10px] font-bold">✓</span>
-                                    </div>
-                                </div>
-                                <div class="grow">
-                                    <div class="font-bold text-gray-900 text-lg font-heading">{{ group.name }}</div>
-                                    <div class="text-sm text-gray-500 max-w-md mt-1 leading-relaxed">{{ group.description }}</div>
-                                </div>
-                                <div class="text-right shrink-0">
-                                    <div class="font-extrabold text-gray-900 text-lg font-heading">
-                                        {{ formatCurrency(group.price) }}
-                                    </div>
-                                    <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">
-                                        {{ getPeriodLabel(group.payment_period) }}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Child Items -->
-                            <div v-if="group.children.length > 0" class="ml-10 mt-4 space-y-3 pl-6 border-l-2 border-dashed border-gray-100">
-                                <div 
-                                    v-for="child in group.children" 
-                                    :key="child.id"
-                                    :class="{ 
-                                        'opacity-50 grayscale': is_public && !isSelected(child.id),
-                                        'cursor-pointer hover:bg-gray-50/50 rounded-xl p-3 -mx-3 transition-all': is_public && calculation.status !== 'confirmed'
-                                    }"
-                                    @click.stop="toggleItem(child)"
-                                    class="flex items-center gap-4"
-                                >
-                                    <div v-if="is_public" class="shrink-0">
-                                        <div 
-                                            class="h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all"
-                                            :class="isSelected(child.id) ? 'bg-brand-primary-to border-transparent text-white' : 'border-gray-100 bg-white'"
-                                        >
-                                            <span v-if="isSelected(child.id)" class="text-[8px] font-bold">✓</span>
-                                        </div>
-                                    </div>
-                                    <div class="grow">
-                                        <div class="font-bold text-gray-700 text-base font-heading">{{ child.name }}</div>
-                                        <div v-if="child.description" class="text-xs text-gray-500 mt-0.5 leading-relaxed">{{ child.description }}</div>
-                                    </div>
-                                    <div class="text-right shrink-0">
-                                        <div class="font-bold text-gray-900 text-base font-heading">
-                                            {{ formatCurrency(child.price) }}
-                                        </div>
-                                        <div class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-0.5">
-                                            {{ getPeriodLabel(child.payment_period) }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <CalculationItemDisplay 
+                            v-for="rootItem in rootItems" 
+                            :key="rootItem.id"
+                            :item="rootItem"
+                            :all-items="calculation.items"
+                            :is-public="is_public"
+                            :is-status-confirmed="calculation.status === 'confirmed'"
+                            :selected-ids="selectedIds"
+                            @toggle="toggleItem"
+                        />
                     </div>
 
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end pt-10 border-t-2 border-gray-100 gap-8">
@@ -187,6 +130,7 @@
 import { Link, router, usePage } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 import Layout from '../../Components/Layout.vue'
+import CalculationItemDisplay from '../../Components/CalculationItemDisplay.vue'
 
 const props = defineProps({
     calculation: Object,
@@ -196,46 +140,89 @@ const props = defineProps({
     }
 })
 
-// Interactive Selection State
-const selectedIds = ref(
-    props.calculation.items
-        .filter(item => item.is_accepted)
-        .map(item => item.id)
-)
+// Function to collect required children (recursively)
+const getRequiredDescendants = (parentId) => {
+    let requiredIds = []
+    const children = props.calculation.items.filter(i => i.parent_id === parentId)
+    children.forEach(child => {
+        if (child.is_required) {
+            requiredIds.push(child.id)
+            requiredIds = requiredIds.concat(getRequiredDescendants(child.id))
+        }
+    })
+    return requiredIds
+}
 
-// Hierarchy Logic
-const groupedItems = computed(() => {
-    const parents = props.calculation.items.filter(item => !item.parent_id)
-    return parents.map(p => ({
-        ...p,
-        children: props.calculation.items.filter(item => item.parent_id === p.id)
-    }))
+// Initial selection state
+const getInitialSelection = () => {
+    if (!props.is_public || props.calculation.status === 'confirmed') {
+        return props.calculation.items
+            // In admin view or confirmed view, we show what is accepted. 
+            // If it's admin view of an UNCONFIRMED calculation, it's safer to not filter by accepted, 
+            // or just render it all. Actually, let's keep the existing logic.
+            .filter(item => item.is_accepted)
+            .map(item => item.id)
+    }
+
+    // For public untouched quote, start with accepted or required roots
+    let initialIds = props.calculation.items.filter(i => i.is_accepted).map(i => i.id)
+    
+    props.calculation.items.forEach(i => {
+        if (!i.parent_id && i.is_required) {
+            if (!initialIds.includes(i.id)) initialIds.push(i.id)
+            initialIds = initialIds.concat(getRequiredDescendants(i.id))
+        }
+    })
+    
+    return [...new Set(initialIds)]
+}
+
+const selectedIds = ref(getInitialSelection())
+
+const rootItems = computed(() => {
+    return props.calculation.items.filter(item => !item.parent_id)
 })
 
 const toggleItem = (item) => {
     if (!props.is_public || props.calculation.status === 'confirmed') return
     
-    // If it's a child and parent is not selected, don't allow selection
-    if (item.parent_id) {
-        if (!selectedIds.value.includes(item.parent_id)) return
-    }
+    // If it's a child and its parent is NOT selected, we cannot select it standalone
+    if (item.parent_id && !selectedIds.value.includes(item.parent_id)) return
+    
+    // Cannot uniquely toggle required subitems if their parent is selected (they are forced selected)
+    // (This is also handled in child component clicking, but preventing here too)
+    if (item.parent_id && item.is_required && selectedIds.value.includes(item.parent_id)) return
+
+    // Cannot untoggle required root items
+    if (!item.parent_id && item.is_required) return
 
     const index = selectedIds.value.indexOf(item.id)
     if (index > -1) {
-        // Deselecting
-        selectedIds.value.splice(index, 1)
-        
-        // If it was a parent, deselect all its children
-        const children = props.calculation.items.filter(i => i.parent_id === item.id)
-        children.forEach(child => {
-            const childIndex = selectedIds.value.indexOf(child.id)
-            if (childIndex > -1) {
-                selectedIds.value.splice(childIndex, 1)
-            }
-        })
+        // Deselecting: Deselect this item and all its descendants recursively
+        const deselectRecursively = (parentId) => {
+            const indexP = selectedIds.value.indexOf(parentId)
+            if (indexP > -1) selectedIds.value.splice(indexP, 1)
+
+            const children = props.calculation.items.filter(i => i.parent_id === parentId)
+            children.forEach(child => deselectRecursively(child.id))
+        }
+        deselectRecursively(item.id)
     } else {
-        // Selecting
+        // Selecting: Select this item and all its REQUIRED descendants recursively
         selectedIds.value.push(item.id)
+        
+        const autoSelectRequired = (parentId) => {
+            const children = props.calculation.items.filter(i => i.parent_id === parentId)
+            children.forEach(child => {
+                if (child.is_required) {
+                    if (!selectedIds.value.includes(child.id)) {
+                        selectedIds.value.push(child.id)
+                    }
+                    autoSelectRequired(child.id)
+                }
+            })
+        }
+        autoSelectRequired(item.id)
     }
 }
 
