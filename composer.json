@@ -21,13 +21,13 @@
     "require-dev": {
         "fakerphp/faker": "^1.24.1",
         "larastan/larastan": "^3.9.2",
+        "laravel/boost": "^2.2",
         "laravel/breeze": "^2.3.8",
         "laravel/pail": "^1.2.3",
         "laravel/pint": "^1.25.1",
         "laravel/sail": "^1.46",
         "mockery/mockery": "^1.6.12",
         "nunomaduro/collision": "^8.8.2",
-        "nunomaduro/larastan": "^3.9.2",
         "phpstan/phpstan": "^2.1.40",
         "phpunit/phpunit": "^11.5",
         "sebastian/environment": "^7.2.1"
