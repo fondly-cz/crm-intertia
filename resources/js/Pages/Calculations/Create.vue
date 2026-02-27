@@ -191,11 +191,11 @@
                                 </div>
 
                             <div class="mt-10 pt-8 border-t-2 border-gray-100 space-y-4">
-                                    <div class="flex justify-between items-center bg-brand-primary-from/5 p-6 rounded-3xl border border-brand-primary-from/10">
-                                        <span class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] font-heading">
+                                    <div class="flex flex-col items-start bg-brand-primary-from/5 p-6 rounded-3xl border border-brand-primary-from/10">
+                                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] font-heading mb-2">
                                             Investice (jednorázově) {{ form.show_vat ? 's DPH' : 'bez DPH' }}
                                         </span>
-                                        <span class="text-4xl font-black brand-text-gradient font-heading line-height-none tracking-tighter">
+                                        <span class="text-4xl text-right font-black brand-text-gradient font-heading line-height-none tracking-tighter">
                                             {{ formatCurrency(totalsByPeriod.once * (form.show_vat ? 1.21 : 1)) }}
                                         </span>
                                     </div>

@@ -1,6 +1,6 @@
 <template>
     <Layout :hideNav="is_public">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="max-w-4xl mx-auto px-0 sm:px-6 lg:px-8 py-12">
             <div class="mb-8 flex justify-between items-center">
                 <Link v-if="!is_public" href="/calculations" class="text-gray-500 hover:text-brand-primary-from flex items-center gap-2 font-bold font-heading transition-colors">
                     <span class="text-xl">←</span> Zpět na seznam
@@ -57,11 +57,11 @@
                         </div>
                     </div>
 
-                    <div v-if="calculation.description" class="mb-10 p-8 pt-6 bg-white rounded-brand border border-gray-100 shadow-sm relative overflow-hidden group">
+                    <div v-if="calculation.description" class="mb-10 p-6 sm:p-8 pt-6 bg-white rounded-brand border border-gray-100 shadow-sm relative overflow-hidden group">
                         <div class="absolute top-0 left-0 w-1 h-full brand-gradient"></div>
                         <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Představení projektu</h4>
                         <div 
-                            class="rich-text-content text-lg text-gray-700 font-medium leading-relaxed pr-12" 
+                            class="rich-text-content text-lg text-gray-700 font-medium leading-relaxed" 
                             v-html="calculation.description"
                         ></div>
                         <div class="absolute -right-4 -bottom-4 text-7xl opacity-5 grayscale select-none">✍️</div>
@@ -97,9 +97,9 @@
                         </div>
                         
                         <div class="w-full sm:w-80 space-y-4">
-                            <div class="flex justify-between items-center bg-gray-50 p-6 rounded-brand border border-gray-100">
-                                <span class="text-sm font-bold text-gray-400 uppercase tracking-widest font-heading">Investice (jednorázově) {{ calculation.show_vat ? 's DPH' : '' }}</span>
-                                <span class="text-4xl font-extrabold brand-text-gradient font-heading tracking-tighter">
+                            <div class="flex flex-col items-start bg-gray-50 p-6 rounded-brand border border-gray-100">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest font-heading mb-2">Investice (jednorázově) {{ calculation.show_vat ? 's DPH' : '' }}</span>
+                                <span class="text-4xl text-right ml-auto font-extrabold brand-text-gradient font-heading tracking-tighter">
                                     {{ formatCurrency(currentTotalsByPeriod.once * (calculation.show_vat ? 1.21 : 1)) }}
                                 </span>
                             </div>

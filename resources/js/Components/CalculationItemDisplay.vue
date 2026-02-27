@@ -1,39 +1,50 @@
 <template>
-    <div class="border-gray-50 last:border-0 pb-6" :class="{ 'ml-10 mt-4 border-l-2 border-dashed pl-6 border-b-0 pb-3': item.parent_id, 'border-b': !item.parent_id }">
+    <div :class="{ 'ml-10 mt-4 border-l-2 border-dashed border-brand-primary-from pl-6 pb-3': item.parent_id, 'mb-10': !item.parent_id }">
         <div 
-            :class="{ 
-                'opacity-50 blur-[0.5px] grayscale bg-gray-50/50': isPublic && !isSelected,
-                'cursor-pointer hover:bg-gray-50/80 rounded-2xl transition-all': isPublic && !isStatusConfirmed && (!item.is_required || !parentSelected),
-                'p-4 -mx-4': !item.parent_id && isPublic && !isStatusConfirmed,
-                'p-3 -mx-3': item.parent_id && isPublic && !isStatusConfirmed,
-            }"
+            :class="[
+                isPublic && !isSelected ? 'opacity-50 blur-[0.1px] grayscale' : '',
+                isSelected 
+                    ? 'bg-white border-2 border-brand-primary-from shadow-sm shadow-brand/10' 
+                    : 'bg-indigo-50/50 border border-indigo-100',
+                isPublic && !isStatusConfirmed && (!item.is_required || !parentSelected) ? 'cursor-pointer hover:border-brand-primary-from/50 group/item' : '',
+                'p-5 rounded-2xl flex flex-col gap-3 transition-all duration-200'
+            ]"
             @click.stop="handleClick"
-            class="flex items-center gap-6"
         >
-            <div v-if="isPublic" class="shrink-0 flex items-center gap-2">
-                <div 
-                    class="rounded-full border-2 flex items-center justify-center transition-all bg-white"
-                    :class="[
-                        isSelected ? 'brand-gradient border-transparent text-white shadow-sm' : 'border-gray-200',
-                        item.parent_id ? 'h-5 w-5' : 'h-6 w-6',
-                        item.is_required ? 'opacity-70 cursor-not-allowed' : ''
-                    ]"
-                >
-                    <span v-if="isSelected" class="font-bold" :class="item.parent_id ? 'text-[8px]' : 'text-[10px]'">✓</span>
-                </div>
-                <span v-if="item.is_required" class="text-[8px] font-black uppercase text-red-500 tracking-widest bg-red-50 px-1.5 py-0.5 rounded border border-red-100">Povinné</span>
+            <!-- Row 1: Name -->
+            <div class="font-bold text-gray-900 font-heading leading-tight" :class="item.parent_id ? 'text-base text-gray-700' : 'text-lg'">
+                {{ item.name }}
             </div>
-            <div class="grow">
-                <div class="font-bold text-gray-900 font-heading" :class="item.parent_id ? 'text-base text-gray-700' : 'text-lg'">{{ item.name }}</div>
-                <div v-if="item.description" class="text-xs text-gray-500 max-w-xl mt-1 leading-relaxed">{{ item.description }}</div>
+
+            <!-- Row 2: Checkmark + Price -->
+            <div class="flex items-center justify-between gap-4">
+                <div v-if="isPublic" class="flex items-center gap-3">
+                    <div 
+                        class="rounded-full border-2 flex items-center justify-center transition-all bg-white"
+                        :class="[
+                            isSelected ? 'brand-gradient border-transparent text-white shadow-sm' : 'border-gray-200',
+                            item.parent_id ? 'h-5 w-5' : 'h-6 w-6',
+                            item.is_required ? 'opacity-70 cursor-not-allowed' : ''
+                        ]"
+                    >
+                        <span v-if="isSelected" class="font-bold" :class="item.parent_id ? 'text-[8px]' : 'text-[10px]'">✓</span>
+                    </div>
+                    <span v-if="item.is_required" class="text-[8px] font-black uppercase text-red-500 tracking-widest bg-red-50 px-1.5 py-0.5 rounded border border-red-100">Povinné</span>
+                </div>
+                
+                <div class="text-right shrink-0 ml-auto">
+                    <div class="font-extrabold text-gray-900 font-heading" :class="item.parent_id ? 'text-base' : 'text-lg'">
+                        {{ formatCurrency(showVat ? item.price * 1.21 : item.price) }}
+                    </div>
+                    <div class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-0.5">
+                        {{ getPeriodLabel(item.payment_period) }} {{ showVat ? 's DPH' : '' }}
+                    </div>
+                </div>
             </div>
-            <div class="text-right shrink-0">
-                <div class="font-extrabold text-gray-900 font-heading" :class="item.parent_id ? 'text-base' : 'text-lg'">
-                    {{ formatCurrency(showVat ? item.price * 1.21 : item.price) }}
-                </div>
-                <div class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">
-                    {{ getPeriodLabel(item.payment_period) }} {{ showVat ? 's DPH' : '' }}
-                </div>
+
+            <!-- Row 3: Description -->
+            <div v-if="item.description" class="text-xs text-gray-500 max-w-xl leading-relaxed pt-1 border-t border-indigo-100/30">
+                {{ item.description }}
             </div>
         </div>
 

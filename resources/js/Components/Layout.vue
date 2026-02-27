@@ -25,7 +25,7 @@ defineProps({
             <Header v-if="!hideNav" />
 
             <!-- Page Content -->
-            <main class="flex-1 p-10">
+            <main class="flex-1 p-0 sm:p-10">
                 <div class="max-w-[1600px] mx-auto">
                     <!-- Flash Messages -->
                     <Transition
