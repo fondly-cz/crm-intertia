@@ -17,6 +17,9 @@
                     <button @click="print" class="inline-flex items-center px-6 py-3 border-2 border-gray-100 shadow-sm text-sm font-bold rounded-full text-gray-700 bg-white hover:bg-gray-50 transition-all font-heading">
                         🖨️ PDF / Tisk
                     </button>
+                    <Link v-if="!is_public" :href="`/calculations/${calculation.id}/edit`" class="inline-flex items-center px-6 py-3 border-2 border-gray-100 shadow-sm text-sm font-bold rounded-full text-brand-primary-from bg-white hover:bg-gray-50 transition-all font-heading">
+                        ✏️ Upravit
+                    </Link>
                     <button v-if="!is_public" @click="shareEmail" class="inline-flex items-center px-6 py-3 brand-gradient text-sm font-bold rounded-full shadow-brand text-white hover:shadow-brand-lg transition-all hover:-translate-y-0.5 font-heading">
                         ✉️ Poslat klientovi
                     </button>

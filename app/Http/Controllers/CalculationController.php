@@ -80,7 +80,7 @@ class CalculationController extends Controller
         // Save items first (flat)
         foreach ($validated['services'] as $itemData) {
             $service = $services->firstWhere('id', $itemData['id']);
-            if (! $service) {
+            if (!$service) {
                 continue;
             }
 
@@ -102,7 +102,7 @@ class CalculationController extends Controller
 
         // Apply hierarchy based on parent_id
         foreach ($validated['services'] as $itemData) {
-            if (! empty($itemData['parent_id']) && isset($createdItems[$itemData['parent_id']])) {
+            if (!empty($itemData['parent_id']) && isset($createdItems[$itemData['parent_id']])) {
                 /** @var \App\Models\CalculationItem $item */
                 $item = $createdItems[$itemData['unique_id']];
                 /** @var \App\Models\CalculationItem $parentItem */
@@ -163,6 +163,95 @@ class CalculationController extends Controller
         ]);
 
         return back()->with('success', 'Kalkulace byla úspěšně potvrzena. Děkujeme!');
+    }
+
+    public function edit(Calculation $calculation)
+    {
+        return inertia('Calculations/Edit', [
+            'calculation' => $calculation->load('items.service'),
+            'services' => Service::where('is_active', true)->get(),
+        ]);
+    }
+
+    public function update(Request $request, Calculation $calculation)
+    {
+        $validated = $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'customer_email' => 'required|email|max:255',
+            'customer_phone' => 'required|string|max:255',
+            'customer_company' => 'nullable|string|max:255',
+            'note' => 'nullable|string',
+            'services' => 'required|array',
+            'services.*.id' => 'required|exists:services,id',
+            'services.*.unique_id' => 'required|string',
+            'services.*.parent_id' => 'nullable|string',
+            'services.*.is_required' => 'boolean',
+            'services.*.price' => 'required|numeric|min:0',
+            'services.*.days' => 'required|integer|min:0',
+            'services.*.payment_period' => 'required|string|in:once,monthly,yearly',
+            'services.*.description' => 'nullable|string',
+            'show_vat' => 'boolean',
+            'company_id' => 'nullable|exists:companies,id',
+            'company_employee_id' => 'nullable|exists:company_employees,id',
+        ]);
+
+        $calculation->update([
+            'customer_name' => $validated['customer_name'],
+            'customer_email' => $validated['customer_email'],
+            'customer_phone' => $validated['customer_phone'],
+            'customer_company' => $validated['customer_company'],
+            'company_id' => $validated['company_id'] ?? null,
+            'company_employee_id' => $validated['company_employee_id'] ?? null,
+            'note' => $validated['note'],
+            'show_vat' => $request->boolean('show_vat'),
+        ]);
+
+        // Delete old items and recreate
+        $calculation->items()->delete();
+
+        $services = Service::whereIn('id', collect($validated['services'])->pluck('id'))->get();
+        $createdItems = [];
+
+        foreach ($validated['services'] as $itemData) {
+            $service = $services->firstWhere('id', $itemData['id']);
+            if (!$service) {
+                continue;
+            }
+
+            $item = $calculation->items()->create([
+                'service_id' => $service->id,
+                'name' => $itemData['name'],
+                'description' => $itemData['description'] ?? $service->description,
+                'cost' => 0,
+                'margin' => 0,
+                'price' => $itemData['price'],
+                'days' => $itemData['days'],
+                'payment_period' => $itemData['payment_period'],
+                'is_accepted' => false,
+                'is_required' => $itemData['is_required'] ?? false,
+            ]);
+
+            $createdItems[$itemData['unique_id']] = $item;
+        }
+
+        foreach ($validated['services'] as $itemData) {
+            if (!empty($itemData['parent_id']) && isset($createdItems[$itemData['parent_id']])) {
+                /** @var \App\Models\CalculationItem $item */
+                $item = $createdItems[$itemData['unique_id']];
+                /** @var \App\Models\CalculationItem $parentItem */
+                $parentItem = $createdItems[$itemData['parent_id']];
+                $item->update(['parent_id' => $parentItem->id]);
+            }
+        }
+
+        return redirect()->route('calculations.show', $calculation)->with('success', 'Kalkulace byla úspěšně upravena.');
+    }
+
+    public function destroy(Calculation $calculation)
+    {
+        $calculation->delete();
+
+        return redirect()->route('calculations.index')->with('success', 'Kalkulace byla smazána.');
     }
 
     public function bulkDelete(Request $request)
