@@ -219,28 +219,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Price Breakdown -->
-                                    <div v-if="form.services.length > 0" class="px-6 py-2 space-y-2">
-                                        <div v-if="totalsByPeriod.once > 0" class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                            <span>Jednorázově</span>
-                                            <span class="text-gray-900">{{ formatCurrency(totalsByPeriod.once * (form.show_vat ? 1.21 : 1)) }}</span>
-                                        </div>
-                                        <div v-if="totalsByPeriod.monthly > 0" class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                            <span>Měsíčně</span>
-                                            <span class="text-gray-900">{{ formatCurrency(totalsByPeriod.monthly * (form.show_vat ? 1.21 : 1)) }}</span>
-                                        </div>
-                                        <div v-if="totalsByPeriod.yearly > 0" class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                            <span>Ročně</span>
-                                            <span class="text-gray-900">{{ formatCurrency(totalsByPeriod.yearly * (form.show_vat ? 1.21 : 1)) }}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex items-center gap-4 px-6">
-                                        <div class="grow h-0.5 bg-gray-50"></div>
-                                        <div class="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]">Shrnutí času</div>
-                                        <div class="grow h-0.5 bg-gray-50"></div>
-                                    </div>
-
                                     <div class="flex justify-center items-center gap-3 py-2">
                                         <span class="text-3xl font-black text-gray-900 font-heading">{{ totalDays }}</span>
                                         <span class="text-xs font-black text-gray-400 uppercase tracking-widest mt-1">pracovních dní</span>
@@ -255,7 +233,7 @@
                         
                         <h2 class="text-lg font-black text-gray-900 mb-8 border-b-2 border-gray-50 pb-6 font-heading uppercase tracking-widest relative z-10">Detaily poptávky</h2>
                         <div class="space-y-6 relative z-10">
-                            <!-- autocomplete block -->
+                            <!-- Company selection -->
                             <div class="relative">
                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Vybrat firmu z databáze (nebo vyplnit ručně)</label>
                                 <input 
@@ -274,7 +252,7 @@
                                 </div>
                                 <div 
                                     v-if="showCompanyResults && companySearchResults.length > 0" 
-                                    class="absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+                                    class="absolute z-30 w-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
                                 >
                                     <ul class="max-h-60 overflow-y-auto">
                                         <li 
@@ -299,13 +277,74 @@
                                     Žádná firma nebyla nalezena
                                 </div>
                             </div>
-                            <!-- end autocomplete block -->
 
-                            <div>
-                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Jméno klienta</label>
+                            <!-- Employee selection (only if company ID is known) -->
+                            <div v-if="selectedCompanyId" class="relative">
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Kontaktní osoba z firmy</label>
+                                
+                                <div v-if="selectedEmployee" class="flex items-center justify-between px-5 py-3.5 bg-brand-primary-from/5 border-2 border-brand-primary-from/20 rounded-2xl">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-8 w-8 bg-white rounded-full flex items-center justify-center text-xs shadow-sm">👤</div>
+                                        <div>
+                                            <div class="text-sm font-black text-brand-primary-from">{{ selectedEmployee.name }}</div>
+                                            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ selectedEmployee.position || 'Zaměstnanec' }}</div>
+                                        </div>
+                                    </div>
+                                    <button @click="deselectEmployee" class="h-8 w-8 rounded-full bg-white text-gray-400 hover:text-red-500 transition-colors shadow-sm flex items-center justify-center">
+                                        <span class="text-xl font-black">×</span>
+                                    </button>
+                                </div>
+
+                                <div v-else class="relative">
+                                    <input 
+                                        v-model="employeeSearchQuery" 
+                                        type="text" 
+                                        class="w-full px-5 py-3.5 bg-gray-50 border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all pr-10" 
+                                        placeholder="Hledat zaměstnance..."
+                                        @focus="showEmployeeResults = employeeSearchQuery.length > 0 || employeeSearchResults.length > 0"
+                                        @input="onEmployeeSearchInput"
+                                    >
+                                    <div v-if="isSearchingEmployees" class="absolute right-3 top-0 flex items-center pr-1 h-full">
+                                        <svg class="animate-spin h-4 w-4 text-brand-primary-from" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </div>
+                                    <div 
+                                        v-if="showEmployeeResults && employeeSearchResults.length > 0" 
+                                        class="absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+                                    >
+                                        <ul class="max-h-60 overflow-y-auto">
+                                            <li 
+                                                v-for="employee in employeeSearchResults" 
+                                                :key="employee.id"
+                                                @click="selectEmployee(employee)"
+                                                class="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0"
+                                            >
+                                                <div class="font-bold text-gray-900 text-sm">{{ employee.name }}</div>
+                                                <div class="text-xs text-gray-500 mt-0.5">
+                                                    <span v-if="employee.position">{{ employee.position }}</span>
+                                                    <span v-if="employee.position && employee.email"> • </span>
+                                                    <span v-if="employee.email">{{ employee.email }}</span>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div 
+                                        v-if="showEmployeeResults && employeeSearchQuery.length > 1 && employeeSearchResults.length === 0 && !isSearchingEmployees" 
+                                        class="absolute z-20 w-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden px-4 py-3 text-sm text-gray-500 text-center"
+                                    >
+                                        Žádný zaměstnanec nebyl nalezen
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-if="!selectedEmployee">
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Jméno klienta (pokud není v DB)</label>
                                 <input v-model="form.customer_name" type="text" required class="w-full px-5 py-3.5 bg-gray-50 border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all" placeholder="Napoleon Bonaparte">
                                 <div v-if="form.errors.customer_name" class="mt-2 text-xs text-red-500 font-bold ml-1">{{ form.errors.customer_name }}</div>
                             </div>
+
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">E-mail</label>
@@ -315,10 +354,6 @@
                                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Telefon</label>
                                     <input v-model="form.customer_phone" type="tel" required class="w-full px-5 py-3.5 bg-gray-50 border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all" placeholder="+420 000 000 000">
                                 </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Firma (nepovinné)</label>
-                                <input v-model="form.customer_company" type="text" class="w-full px-5 py-3.5 bg-gray-50 border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all" placeholder="Název firmy">
                             </div>
 
                             <div>
@@ -384,6 +419,13 @@ const companySearchQuery = ref('')
 const companySearchResults = ref([])
 const isSearching = ref(false)
 const showCompanyResults = ref(false)
+const selectedCompanyId = ref(null)
+
+const employeeSearchQuery = ref('')
+const employeeSearchResults = ref([])
+const isSearchingEmployees = ref(false)
+const showEmployeeResults = ref(false)
+const selectedEmployee = ref(null)
 
 const performCompanySearch = debounce(async () => {
     if (companySearchQuery.value.length < 2) {
@@ -412,20 +454,69 @@ const onSearchInput = () => {
     performCompanySearch()
 }
 
+const performEmployeeSearch = debounce(async () => {
+    if (!selectedCompanyId.value) return
+
+    isSearchingEmployees.value = true
+    try {
+        const response = await fetch(`/api/companies/${selectedCompanyId.value}/employees/search?q=${encodeURIComponent(employeeSearchQuery.value)}`)
+        const data = await response.json()
+        employeeSearchResults.value = data
+        showEmployeeResults.value = true
+    } catch (error) {
+        console.error('Error fetching employees:', error)
+    } finally {
+        isSearchingEmployees.value = false
+    }
+}, 300)
+
+const onEmployeeSearchInput = () => {
+    isSearchingEmployees.value = true
+    showEmployeeResults.value = true
+    performEmployeeSearch()
+}
+
 const selectCompany = (company) => {
-    form.customer_name = company.name
     form.customer_company = company.name
-    if (company.email) form.customer_email = company.email
-    if (company.phone) form.customer_phone = company.phone
+    form.company_id = company.id
+    selectedCompanyId.value = company.id
+    
+    // Clear employee when company changes
+    selectedEmployee.value = null
+    form.company_employee_id = null
+    form.customer_name = ''
+    form.customer_email = ''
+    form.customer_phone = ''
+    employeeSearchQuery.value = ''
     
     companySearchQuery.value = company.name
     showCompanyResults.value = false
+}
+
+const selectEmployee = (employee) => {
+    selectedEmployee.value = employee
+    form.company_employee_id = employee.id
+    form.customer_name = employee.name
+    if (employee.email) form.customer_email = employee.email
+    if (employee.phone) form.customer_phone = employee.phone
+    
+    showEmployeeResults.value = false
+}
+
+const deselectEmployee = () => {
+    selectedEmployee.value = null
+    form.company_employee_id = null
+    form.customer_name = ''
+    form.customer_email = ''
+    form.customer_phone = ''
+    employeeSearchQuery.value = ''
 }
 
 // Close autocomplete when clicking outside
 const handleClickOutside = (e) => {
     if (!e.target.closest('.relative')) {
         showCompanyResults.value = false
+        showEmployeeResults.value = false
     }
 }
 
@@ -461,6 +552,8 @@ const form = useForm({
     customer_email: user?.email || '',
     customer_phone: user?.phone || '',
     customer_company: user?.company || '',
+    company_id: null,
+    company_employee_id: null,
     note: '',
     show_vat: false,
     services: [] // { unique_id, parent_id: null }

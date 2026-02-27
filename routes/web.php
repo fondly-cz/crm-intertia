@@ -17,6 +17,7 @@ Route::middleware(['auth', 'hasRole'])->group(function () {
     Route::get('/api/ares', [\App\Http\Controllers\AresController::class, 'getCompanyData'])->name('ares.lookup');
     Route::get('/api/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search');
     Route::get('/api/companies/search', \App\Http\Controllers\Api\CompanySearchController::class)->name('api.companies.search');
+    Route::get('/api/companies/{company}/employees/search', \App\Http\Controllers\Api\CompanyEmployeeSearchController::class)->name('api.companies.employees.search');
 
     Route::resource('calculations', CalculationController::class);
     Route::post('calculations/bulk-delete', [CalculationController::class, 'bulkDelete'])->name('calculations.bulk-delete');

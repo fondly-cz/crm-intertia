@@ -56,6 +56,8 @@ class CalculationController extends Controller
             'services.*.payment_period' => 'required|string|in:once,monthly,yearly',
             'services.*.description' => 'nullable|string',
             'show_vat' => 'boolean',
+            'company_id' => 'nullable|exists:companies,id',
+            'company_employee_id' => 'nullable|exists:company_employees,id',
         ]);
 
         $calculation = Calculation::create([
@@ -63,6 +65,8 @@ class CalculationController extends Controller
             'customer_email' => $validated['customer_email'],
             'customer_phone' => $validated['customer_phone'],
             'customer_company' => $validated['customer_company'],
+            'company_id' => $validated['company_id'] ?? null,
+            'company_employee_id' => $validated['company_employee_id'] ?? null,
             'note' => $validated['note'],
             'show_vat' => $request->boolean('show_vat'),
             'user_id' => auth()->id(),
