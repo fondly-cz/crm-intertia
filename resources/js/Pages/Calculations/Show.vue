@@ -60,9 +60,10 @@
                     <div v-if="calculation.description" class="mb-10 p-8 pt-6 bg-white rounded-brand border border-gray-100 shadow-sm relative overflow-hidden group">
                         <div class="absolute top-0 left-0 w-1 h-full brand-gradient"></div>
                         <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Představení projektu</h4>
-                        <p class="text-lg text-gray-700 font-medium leading-relaxed italic pr-12">
-                            "{{ calculation.description }}"
-                        </p>
+                        <div 
+                            class="rich-text-content text-lg text-gray-700 font-medium leading-relaxed pr-12" 
+                            v-html="calculation.description"
+                        ></div>
                         <div class="absolute -right-4 -bottom-4 text-7xl opacity-5 grayscale select-none">✍️</div>
                     </div>
 
@@ -345,6 +346,13 @@ const shareEmail = () => {
 </script>
 
 <style scoped>
+.rich-text-content :deep(p) { margin-bottom: 0.5rem; }
+.rich-text-content :deep(ul) { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+.rich-text-content :deep(ol) { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
+.rich-text-content :deep(h1) { font-size: 1.5rem; font-weight: 800; margin: 1rem 0; }
+.rich-text-content :deep(h2) { font-size: 1.25rem; font-weight: 700; margin: 0.75rem 0; }
+.rich-text-content :deep(h3) { font-size: 1.125rem; font-weight: 600; margin: 0.5rem 0; }
+
 @keyframes pulse-slow {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.7; }
