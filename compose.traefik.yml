@@ -1,5 +1,5 @@
 services:
-  laravel:
+  mojimili-laravel:
     labels:
       - traefik.enable=true
       - traefik.http.routers.mojimili.rule=Host(`${DOMAIN_NAME}`)
