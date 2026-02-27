@@ -48,7 +48,7 @@
                                         @click="addService(service)"
                                         class="hover:bg-brand-primary-from/5 transition-colors cursor-pointer group"
                                     >
-                                        <td class="py-4 pl-6 pr-3">
+                                        <td class="py-5 pl-6 pr-3">
                                             <div class="flex items-center gap-4">
                                                 <div class="h-10 w-10 bg-gray-50 rounded-xl flex items-center justify-center text-xl shadow-sm group-hover:bg-white transition-colors shrink-0">
                                                     {{ service.icon }}
@@ -59,7 +59,7 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="py-4 px-3 text-right">
+                                        <td class="py-5 px-3 text-right">
                                             <div class="text-sm font-black brand-text-gradient font-heading">{{ formatCurrency(calculatePrice(service) * (form.show_vat ? 1.21 : 1)) }}</div>
                                             <div class="text-[8px] font-black uppercase tracking-widest text-gray-400 mt-0.5">{{ getPeriodLabel(service.payment_period) }} {{ form.show_vat ? 's DPH' : '' }}</div>
                                         </td>
