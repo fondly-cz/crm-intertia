@@ -139,7 +139,7 @@ class ServiceSeeder extends Seeder
                 $parentId = $created[$data['parent_id']]->id;
             }
 
-            // Note: USER asked "popis tam nevkládej" for the DATABASE (Services table), 
+            // Note: USER asked "popis tam nevkládej" for the DATABASE (Services table),
             // but wants them in the CALCULATION later.
             // Wait, "popis tam nevkládej" usually means the 'description' field in the 'services' table.
 
