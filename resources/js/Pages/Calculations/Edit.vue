@@ -143,6 +143,16 @@
                             </div>
                         </div>
 
+                        <div class="p-8 pb-0">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Popis kalkulace (zobrazí se před položkami)</label>
+                            <textarea 
+                                v-model="form.description" 
+                                rows="2" 
+                                class="w-full px-5 py-3.5 bg-gray-50 border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all" 
+                                placeholder="Stručné shrnutí projektu, které uvidí klient..."
+                            ></textarea>
+                        </div>
+
                         <div class="p-8">
                             <!-- Drop Zone for Root Level -->
                             <div 
@@ -567,6 +577,7 @@ const form = useForm({
     customer_company: props.calculation.customer_company,
     company_id: props.calculation.company_id,
     company_employee_id: props.calculation.company_employee_id,
+    description: props.calculation.description || '',
     note: props.calculation.note,
     show_vat: props.calculation.show_vat,
     services: props.calculation.items.map(item => ({

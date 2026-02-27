@@ -58,6 +58,7 @@ class CalculationController extends Controller
             'show_vat' => 'boolean',
             'company_id' => 'nullable|exists:companies,id',
             'company_employee_id' => 'nullable|exists:company_employees,id',
+            'description' => 'nullable|string',
         ]);
 
         $calculation = Calculation::create([
@@ -67,6 +68,7 @@ class CalculationController extends Controller
             'customer_company' => $validated['customer_company'],
             'company_id' => $validated['company_id'] ?? null,
             'company_employee_id' => $validated['company_employee_id'] ?? null,
+            'description' => $validated['description'] ?? null,
             'note' => $validated['note'],
             'show_vat' => $request->boolean('show_vat'),
             'user_id' => auth()->id(),
@@ -80,7 +82,7 @@ class CalculationController extends Controller
         // Save items first (flat)
         foreach ($validated['services'] as $itemData) {
             $service = $services->firstWhere('id', $itemData['id']);
-            if (!$service) {
+            if (! $service) {
                 continue;
             }
 
@@ -102,7 +104,7 @@ class CalculationController extends Controller
 
         // Apply hierarchy based on parent_id
         foreach ($validated['services'] as $itemData) {
-            if (!empty($itemData['parent_id']) && isset($createdItems[$itemData['parent_id']])) {
+            if (! empty($itemData['parent_id']) && isset($createdItems[$itemData['parent_id']])) {
                 /** @var \App\Models\CalculationItem $item */
                 $item = $createdItems[$itemData['unique_id']];
                 /** @var \App\Models\CalculationItem $parentItem */
@@ -193,6 +195,7 @@ class CalculationController extends Controller
             'show_vat' => 'boolean',
             'company_id' => 'nullable|exists:companies,id',
             'company_employee_id' => 'nullable|exists:company_employees,id',
+            'description' => 'nullable|string',
         ]);
 
         $calculation->update([
@@ -202,6 +205,7 @@ class CalculationController extends Controller
             'customer_company' => $validated['customer_company'],
             'company_id' => $validated['company_id'] ?? null,
             'company_employee_id' => $validated['company_employee_id'] ?? null,
+            'description' => $validated['description'] ?? null,
             'note' => $validated['note'],
             'show_vat' => $request->boolean('show_vat'),
         ]);
@@ -214,13 +218,13 @@ class CalculationController extends Controller
 
         foreach ($validated['services'] as $itemData) {
             $service = $services->firstWhere('id', $itemData['id']);
-            if (!$service) {
+            if (! $service) {
                 continue;
             }
 
             $item = $calculation->items()->create([
                 'service_id' => $service->id,
-                'name' => $itemData['name'],
+                'name' => $service->name,
                 'description' => $itemData['description'] ?? $service->description,
                 'cost' => 0,
                 'margin' => 0,
@@ -235,7 +239,7 @@ class CalculationController extends Controller
         }
 
         foreach ($validated['services'] as $itemData) {
-            if (!empty($itemData['parent_id']) && isset($createdItems[$itemData['parent_id']])) {
+            if (! empty($itemData['parent_id']) && isset($createdItems[$itemData['parent_id']])) {
                 /** @var \App\Models\CalculationItem $item */
                 $item = $createdItems[$itemData['unique_id']];
                 /** @var \App\Models\CalculationItem $parentItem */

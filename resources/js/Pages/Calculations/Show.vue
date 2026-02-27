@@ -57,6 +57,15 @@
                         </div>
                     </div>
 
+                    <div v-if="calculation.description" class="mb-10 p-8 pt-6 bg-white rounded-brand border border-gray-100 shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 w-1 h-full brand-gradient"></div>
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Představení projektu</h4>
+                        <p class="text-lg text-gray-700 font-medium leading-relaxed italic pr-12">
+                            "{{ calculation.description }}"
+                        </p>
+                        <div class="absolute -right-4 -bottom-4 text-7xl opacity-5 grayscale select-none">✍️</div>
+                    </div>
+
                     <div v-if="is_public && calculation.status !== 'confirmed'" class="mb-10 p-5 bg-indigo-50/50 rounded-2xl border border-indigo-100 flex items-center gap-4">
                         <div class="h-12 w-12 brand-gradient rounded-full flex items-center justify-center text-white text-2xl shadow-brand">✨</div>
                         <p class="text-sm text-indigo-900 font-medium leading-relaxed">
