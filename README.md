@@ -33,8 +33,8 @@ A modern CRM application built with Laravel, Vue.js 3, and Inertia.js, using pnp
 | Install dependencies                       | `composer install`                                                           |
 | Create environment file                    | `cp .env.example .env`                                                       |
 | Generate app key                           | `php artisan key:generate`                                                   |
-| Start containers locally                   | `./vendor/bin/sail compose -f docker-compose.yml -f compose.local.yml up -d` |
-| Start containers with traefik              | `./vendor/bin/sail compose -f docker-compose.yml -f compose.traefik.yml up -d` |
+| Start containers locally                   | `./vendor/bin/sail -f docker-compose.yml -f compose.local.yml up -d` |
+| Start containers with traefik              | `./vendor/bin/sail -f docker-compose.yml -f compose.traefik.yml up -d` |
 | Migrate database                           | `./vendor/bin/sail artisan migrate`                                          |
 | Seed database with initial data            | `./vendor/bin/sail artisan migrate:fresh --seed`                             |
 | Install JS dependencies (in container)     | `./vendor/bin/sail pnpm install`                                             |
