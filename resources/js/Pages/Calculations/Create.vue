@@ -479,7 +479,7 @@ const handleNodeDragStart = (data) => {
 }
 
 const handleDrop = (targetId) => {
-    if (!draggedId.value || targetId === draggedId.value) return
+    if (!draggedId.value) return
     
     // Prevent cycle: Don't allow dropping on a target that is already a child of the dragged item
     const isDescendant = (parentUniqueId, targetUniqueId) => {
@@ -491,7 +491,17 @@ const handleDrop = (targetId) => {
         return false
     }
 
-    if (targetId !== null && isDescendant(draggedId.value, targetId)) return
+    if (targetId !== null && isDescendant(draggedId.value, targetId)) {
+        draggedId.value = null
+        dropTargetId.value = null
+        return
+    }
+
+    if (targetId === draggedId.value) {
+        draggedId.value = null
+        dropTargetId.value = null
+        return
+    }
 
     const dragItem = form.services.find(s => s.unique_id === draggedId.value)
     
