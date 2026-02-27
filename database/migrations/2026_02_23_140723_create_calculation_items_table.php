@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,6 +12,7 @@ return new class extends Migration
     {
         Schema::create('calculation_items', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('parent_id')->nullable()->constrained('calculation_items')->nullOnDelete();
             $table->foreignId('calculation_id')->constrained()->cascadeOnDelete();
             $table->foreignId('service_id')->nullable()->constrained()->nullOnDelete();
             $table->string('name');
@@ -21,6 +21,9 @@ return new class extends Migration
             $table->decimal('margin', 5, 2);
             $table->decimal('price', 15, 2);
             $table->integer('days');
+            $table->string('payment_period')->default('once');
+            $table->boolean('is_accepted')->default(false);
+            $table->boolean('is_required')->default(false);
             $table->timestamps();
         });
     }
