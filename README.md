@@ -28,16 +28,25 @@ A modern CRM application built with Laravel, Vue.js 3, and Inertia.js, using pnp
 - SQLite (default) or MySQL/PostgreSQL
 
 ### To run the project use:
-| Step                                      | Command                                                      |
-|--------------------------------------------|--------------------------------------------------------------|
-| Install dependencies                       | `composer install`                                           |
-| Create environment file                    | `cp .env.example .env`                                       |
-| Generate app key                           | `php artisan key:generate`                                   |
-| Start containers                           | `./vendor/bin/sail up -d`                                    |
-| Migrate database                           | `./vendor/bin/sail artisan migrate`                          |
-| Seed database with initial data            | `./vendor/bin/sail artisan migrate:fresh --seed`             |
-| Install JS dependencies (in container)     | `./vendor/bin/sail pnpm install`                             |
-| Start Vite dev server                      | `./vendor/bin/sail composer run dev`                         |
+| Step                                       | Command                                                                       |
+|--------------------------------------------|------------------------------------------------------------------------------|
+| Install dependencies                       | `composer install`                                                           |
+| Create environment file                    | `cp .env.example .env`                                                       |
+| Generate app key                           | `php artisan key:generate`                                                   |
+| Start containers locally                   | `./vendor/bin/sail compose -f docker-compose.yml -f compose.local.yml up -d` |
+| Start containers with traefik              | `./vendor/bin/sail compose -f docker-compose.yml -f compose.traefik.yml up -d` |
+| Migrate database                           | `./vendor/bin/sail artisan migrate`                                          |
+| Seed database with initial data            | `./vendor/bin/sail artisan migrate:fresh --seed`                             |
+| Install JS dependencies (in container)     | `./vendor/bin/sail pnpm install`                                             |
+| Start Vite dev server                      | `./vendor/bin/sail composer run dev`                                         |
+
+
+you can merge compose files by using     multiple -f flags, for example:
+    ```bash
+    docker compose -f docker-compose.yml -f compose.local.yml up -d
+    ```
+
+    Choose specific compose files to merge depending on your    enviroment.
 
 
 ## Credentials
