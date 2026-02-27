@@ -119,22 +119,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Price Breakdown -->
-                            <div class="px-4 py-1 space-y-2">
-                                <div v-if="currentTotalsByPeriod.once > 0" class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                    <span>Jednorázově</span>
-                                    <span class="text-gray-900">{{ formatCurrency(currentTotalsByPeriod.once * (calculation.show_vat ? 1.21 : 1)) }}</span>
-                                </div>
-                                <div v-if="currentTotalsByPeriod.monthly > 0" class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                    <span>Měsíčně</span>
-                                    <span class="text-gray-900">{{ formatCurrency(currentTotalsByPeriod.monthly * (calculation.show_vat ? 1.21 : 1)) }}</span>
-                                </div>
-                                <div v-if="currentTotalsByPeriod.yearly > 0" class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                    <span>Ročně</span>
-                                    <span class="text-gray-900">{{ formatCurrency(currentTotalsByPeriod.yearly * (calculation.show_vat ? 1.21 : 1)) }}</span>
-                                </div>
-                            </div>
                             
                             <button 
                                 v-if="is_public && calculation.status !== 'confirmed'"
