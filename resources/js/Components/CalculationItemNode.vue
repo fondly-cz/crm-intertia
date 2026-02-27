@@ -1,5 +1,5 @@
 <template>
-    <div class="relative group bg-white border-2 rounded-3xl p-5 mb-4 transition-all shadow-sm flex items-start gap-4 cursor-move"
+    <div class="relative group bg-white border-2 rounded-3xl p-6 mb-4 transition-all shadow-sm flex items-start gap-4 cursor-move"
          :class="[
              dropTargetId === item.unique_id ? 'border-brand-primary-from bg-brand-primary-from/5 scale-[1.02]' : 'border-gray-100 hover:border-brand-primary-from/30',
              draggedId === item.unique_id ? 'opacity-30' : ''
