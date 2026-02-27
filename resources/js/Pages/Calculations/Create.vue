@@ -128,8 +128,19 @@
                     <div class="bg-white rounded-[2.5rem] shadow-brand overflow-hidden border border-gray-50">
                         <div class="bg-gray-900 px-8 py-8 text-white relative overflow-hidden">
                             <div class="absolute right-0 top-0 h-full w-32 brand-gradient opacity-20 blur-3xl pointer-events-none"></div>
-                            <h3 class="text-xl font-bold font-heading uppercase tracking-widest relative z-10">Struktura projektu</h3>
-                            <p class="text-gray-400 text-xs mt-1 font-medium relative z-10">Kliknutím na "➕" u položky přidáte podslužbu</p>
+                            <div class="flex justify-between items-center relative z-10">
+                                <div>
+                                    <h3 class="text-xl font-bold font-heading uppercase tracking-widest">Struktura projektu</h3>
+                                    <p class="text-gray-400 text-xs mt-1 font-medium">Kliknutím na "➕" u položky přidáte podslužbu</p>
+                                </div>
+                                <label class="flex items-center gap-2 cursor-pointer group/vat bg-white/5 hover:bg-white/10 px-4 py-2 rounded-2xl transition-all border border-white/10">
+                                    <div class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" v-model="form.show_vat" class="sr-only peer">
+                                        <div class="w-8 h-4 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:inset-s-[2px] after:bg-white after:border-gray-600 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-primary-from"></div>
+                                    </div>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest group-hover/vat:text-white transition-colors">Ceny s DPH</span>
+                                </label>
+                            </div>
                         </div>
 
                         <div class="p-8">
@@ -171,18 +182,9 @@
 
                             <div class="mt-10 pt-8 border-t-2 border-gray-100 space-y-4">
                                     <div class="flex justify-between items-center bg-brand-primary-from/5 p-6 rounded-3xl border border-brand-primary-from/10">
-                                        <div class="flex flex-col">
-                                            <span class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] font-heading">
-                                                Investice (jednorázově) {{ form.show_vat ? 's DPH' : 'bez DPH' }}
-                                            </span>
-                                            <label class="mt-2 flex items-center gap-2 cursor-pointer group/vat">
-                                                <div class="relative inline-flex items-center cursor-pointer">
-                                                    <input type="checkbox" v-model="form.show_vat" class="sr-only peer">
-                                                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:inset-s-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-primary-from"></div>
-                                                </div>
-                                                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest group-hover/vat:text-brand-primary-from transition-colors">Zobrazit s DPH</span>
-                                            </label>
-                                        </div>
+                                        <span class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] font-heading">
+                                            Investice (jednorázově) {{ form.show_vat ? 's DPH' : 'bez DPH' }}
+                                        </span>
                                         <span class="text-4xl font-black brand-text-gradient font-heading line-height-none tracking-tighter">
                                             {{ formatCurrency(totalsByPeriod.once * (form.show_vat ? 1.21 : 1)) }}
                                         </span>
