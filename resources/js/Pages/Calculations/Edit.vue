@@ -1,31 +1,18 @@
 <template>
     <Layout>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-12">
             <div class="hero text-center py-12 mb-8 brand-gradient rounded-[2.5rem] text-white shadow-brand-lg">
                 <h1 class="text-4xl font-black tracking-tight sm:text-5xl font-heading uppercase">Úprava kalkulace</h1>
                 <p class="mt-4 text-xl opacity-90 font-medium italic">Upravte detaily projektu #{{ calculation.id }}</p>
             </div>
 
-            <div class="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start relative">
-                <!-- Toggle Open Button (Visible when closed) -->
-                <div v-if="!isCatalogOpen" class="hidden lg:flex absolute -left-4 top-8 -ml-6 z-20">
-                    <button @click="isCatalogOpen = true" class="h-12 w-12 bg-white rounded-full shadow-brand border border-gray-100 flex items-center justify-center text-brand-primary-from hover:scale-110 transition-all" title="Zobrazit katalog">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 font-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
-                </div>
+            <div class="lg:grid lg:grid-cols-12 lg:gap-x-12 2xl:gap-x-20 lg:items-start relative">
 
                 <!-- Catalog of Services -->
-                <div v-show="isCatalogOpen" class="lg:col-span-7 transition-all">
+                <div v-show="isCatalogOpen" class="lg:col-span-6 transition-all">
                     <div class="mb-8 flex items-center justify-between">
                         <div class="flex items-center gap-4">
                             <h2 class="text-2xl font-black text-gray-900 font-heading">Katalog služeb</h2>
-                            <button @click="isCatalogOpen = false" class="hidden lg:flex h-8 w-8 bg-gray-50 rounded-full items-center justify-center text-gray-400 hover:text-brand-primary-from hover:bg-brand-primary-from/10 transition-colors hover:scale-110" title="Skrýt katalog">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 stroke-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                                </svg>
-                            </button>
                         </div>
                         <div class="flex gap-2">
                              <div class="px-4 py-2 bg-gray-50 rounded-xl text-xs font-bold text-gray-400 uppercase tracking-widest border border-gray-100">
@@ -123,15 +110,29 @@
                 </div>
 
                 <!-- Structure and Summary -->
-                <div class="mt-16 lg:mt-0 space-y-8 transition-all duration-300" :class="isCatalogOpen ? 'lg:col-span-5' : 'lg:col-span-12'">
+                <div class="mt-16 lg:mt-0 space-y-8 transition-all duration-300" :class="isCatalogOpen ? 'lg:col-span-6' : 'lg:col-span-12'">
                     <!-- Added Items (Hierarchical Builder) -->
                     <div class="bg-white rounded-[2.5rem] shadow-brand overflow-hidden border border-gray-50">
                         <div class="bg-gray-900 px-8 py-8 text-white relative overflow-hidden">
                             <div class="absolute right-0 top-0 h-full w-32 brand-gradient opacity-20 blur-3xl pointer-events-none"></div>
                             <div class="flex justify-between items-center relative z-10">
-                                <div>
-                                    <h3 class="text-xl font-bold font-heading uppercase tracking-widest">Struktura projektu</h3>
-                                    <p class="text-gray-400 text-xs mt-1 font-medium">Kliknutím na "➕" u položky přidáte podslužbu</p>
+                                <div class="flex items-center gap-4">
+                                    <button 
+                                        @click="isCatalogOpen = !isCatalogOpen" 
+                                        class="h-10 w-10 bg-white/10 rounded-xl flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/10"
+                                        :title="isCatalogOpen ? 'Skrýt katalog' : 'Zobrazit katalog'"
+                                    >
+                                        <svg v-if="isCatalogOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+                                    <div>
+                                        <h3 class="text-xl font-bold font-heading uppercase tracking-widest">Struktura projektu</h3>
+                                        <p class="text-gray-400 text-xs mt-1 font-medium">Kliknutím na "➕" u položky přidáte podslužbu</p>
+                                    </div>
                                 </div>
                                 <label class="flex items-center gap-2 cursor-pointer group/vat bg-white/5 hover:bg-white/10 px-4 py-2 rounded-2xl transition-all border border-white/10">
                                     <div class="relative inline-flex items-center cursor-pointer">
@@ -145,12 +146,11 @@
 
                         <div class="p-8 pb-0">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Popis kalkulace (zobrazí se před položkami)</label>
-                            <textarea 
+                            <RichEditor 
                                 v-model="form.description" 
-                                rows="2" 
-                                class="w-full px-5 py-3.5 bg-gray-50 border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-primary-from focus:border-brand-primary-from transition-all" 
                                 placeholder="Stručné shrnutí projektu, které uvidí klient..."
-                            ></textarea>
+                                height="250px"
+                            />
                         </div>
 
                         <div class="p-8">
@@ -394,6 +394,7 @@ import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useForm, usePage } from '@inertiajs/vue3'
 import Layout from '../../Components/Layout.vue'
 import CalculationItemNode from '../../Components/CalculationItemNode.vue'
+import RichEditor from '../../Components/RichEditor.vue'
 import debounce from 'lodash/debounce'
 
 const props = defineProps({
