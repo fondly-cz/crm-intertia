@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('parent_id')->nullable()->constrained('services')->nullOnDelete();
             $table->string('name');
             $table->string('category');
             $table->text('description')->nullable();
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->string('payment_period')->default('once');
             $table->string('icon')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_required')->default(false);
             $table->timestamps();
         });
     }
